@@ -1,0 +1,107 @@
+.new-workout {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.next-exercise-button,
+.complete-exercise-button,
+.finish-workout-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.next-exercise-button:hover,
+.complete-exercise-button:hover {
+  background-color: #0056b3;
+}
+
+.current-exercise {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+.set-inputs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.reps-input,
+.weight-input {
+  flex: 1;
+  padding: 0.5rem;
+}
+
+.add-set-button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-set-button:hover {
+  background-color: #218838;
+}
+
+.sets-list {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.completed-exercises {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.completed-exercise-item {
+  background-color: #f8f9fa;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.finish-workout-button {
+  background-color: #dc3545;
+}
+
+.finish-workout-button:hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .new-workout {
+    padding: 0.5rem;
+  }
+
+  .set-inputs {
+    flex-direction: column;
+  }
+}
+
+.exercise-select {
+  margin-bottom: 1rem;
+}
+
+.exercise-select select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}

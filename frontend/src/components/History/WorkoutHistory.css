@@ -1,0 +1,32 @@
+.workout-history {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.filter-input {
+  margin-bottom: 1rem;
+}
+
+.history-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-item {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.exercise-entry {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid #007bff;
+}
+
+@media (max-width: 768px) {
+  .workout-history {
+    padding: 0 1rem;
+  }
+}
