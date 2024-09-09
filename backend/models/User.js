@@ -13,6 +13,14 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
+  },
+  // Add this new field
+  lastExerciseData: {
+    type: Map,
+    of: {
+      reps: Number,
+      weight: Number
+    }
   }
 });
 

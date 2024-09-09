@@ -15,6 +15,8 @@ const NewWorkout = () => {
   const [sets, setSets] = useState([]);
   const repsInputRef = useRef(null);
   const navigate = useNavigate();
+  const [lastExerciseData, setLastExerciseData] = useState({ reps: '', weight: '' });
+  const [lastAddedSet, setLastAddedSet] = useState(null);
 
   useEffect(() => {
     const fetchExercises = async () => {
@@ -39,24 +41,40 @@ const NewWorkout = () => {
     fetchExercises();
   }, [navigate]);
 
-  const handleExerciseSelect = (e) => {
+  const handleExerciseSelect = async (e) => {
     const exerciseId = e.target.value;
     const selected = exercises.find(ex => ex._id === exerciseId);
     setSelectedExercise(exerciseId);
     if (selected) {
       setCurrentExercise(selected);
-      setWeight(selected.lastWeight ? selected.lastWeight.toString() : '');
+      try {
+        const response = await api.get(`/exercises/last-data/${selected.name}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        setLastExerciseData(response.data);
+        setReps(response.data.reps ? response.data.reps.toString() : '');
+        setWeight(response.data.weight ? response.data.weight.toString() : '');
+        setLastAddedSet(null); // Reset lastAddedSet when selecting a new exercise
+      } catch (error) {
+        console.error('Error fetching last exercise data:', error);
+      }
     } else {
       setCurrentExercise(null);
       setSets([]);
+      setLastExerciseData({ reps: '', weight: '' });
+      setLastAddedSet(null);
     }
   };
 
   const handleAddSet = () => {
     if (reps && weight) {
-      setSets([...sets, { reps: parseInt(reps), weight: parseFloat(weight) }]);
-      setReps('');
-      setWeight(currentExercise.lastWeight ? currentExercise.lastWeight.toString() : '');
+      const newSet = { reps: parseInt(reps), weight: parseFloat(weight) };
+      setSets([...sets, newSet]);
+      setLastAddedSet(newSet);
+      
+      // Autofill with the set just added
+      setReps(newSet.reps.toString());
+      setWeight(newSet.weight.toString());
       
       // Set focus on the reps input field
       if (repsInputRef.current) {
@@ -64,6 +82,18 @@ const NewWorkout = () => {
       }
     }
   };
+
+  useEffect(() => {
+    if (currentExercise && !lastAddedSet) {
+      // Autofill with last exercise data when selecting a new exercise
+      setReps(lastExerciseData.reps ? lastExerciseData.reps.toString() : '');
+      setWeight(lastExerciseData.weight ? lastExerciseData.weight.toString() : '');
+    } else if (lastAddedSet) {
+      // Autofill with the last added set for subsequent sets
+      setReps(lastAddedSet.reps.toString());
+      setWeight(lastAddedSet.weight.toString());
+    }
+  }, [currentExercise, lastAddedSet, lastExerciseData]);
 
   const handleCompleteExercise = () => {
     if (sets.length > 0) {
@@ -124,7 +154,7 @@ const NewWorkout = () => {
               type="number"
               value={reps}
               onChange={(e) => setReps(e.target.value)}
-              placeholder="Reps"
+              placeholder={`Reps (Last: ${lastExerciseData.reps || 'N/A'})`}
               className="reps-input"
               ref={repsInputRef}
             />
@@ -132,7 +162,7 @@ const NewWorkout = () => {
               type="number"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
-              placeholder="Weight (kg)"
+              placeholder={`Weight (Last: ${lastExerciseData.weight || 'N/A'})`}
               className="weight-input"
             />
             <button onClick={handleAddSet} className="add-set-button">Add Set</button>

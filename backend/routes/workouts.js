@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Workout = require('../models/Workout');
 const auth = require('../middleware/auth');
+const User = require('../models/User');
 
 // GET /api/workouts/history
 router.get('/history', auth, async (req, res) => {
@@ -25,6 +26,24 @@ router.post('/', auth, async (req, res) => {
     });
 
     await newWorkout.save();
+
+    // Update the user's lastExerciseData
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!user.lastExerciseData) {
+      user.lastExerciseData = new Map();
+    }
+    exercises.forEach(exercise => {
+      const lastSet = exercise.sets[exercise.sets.length - 1];
+      user.lastExerciseData.set(exercise.name, {
+        reps: lastSet.reps,
+        weight: lastSet.weight
+      });
+    });
+    await user.save();
+
     res.status(201).json(newWorkout);
   } catch (error) {
     console.error('Error saving workout:', error);

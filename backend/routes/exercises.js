@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Exercise = require('../models/Exercise');
 const auth = require('../middleware/auth');
+const User = require('../models/User');
 
 // GET all exercises
 router.get('/', auth, async (req, res) => {
@@ -47,6 +48,28 @@ router.delete('/:id', auth, async (req, res) => {
     res.json({ message: 'Exercise deleted successfully' });
   } catch (error) {
     res.status(400).json({ message: 'Error deleting exercise', error: error.message });
+  }
+});
+
+// GET /api/exercises/last-data/:exerciseName
+router.get('/last-data/:exerciseName', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!user.lastExerciseData) {
+      return res.json({ reps: null, weight: null });
+    }
+    const lastData = user.lastExerciseData.get(req.params.exerciseName);
+    if (lastData) {
+      res.json(lastData);
+    } else {
+      res.json({ reps: null, weight: null });
+    }
+  } catch (error) {
+    console.error('Error fetching last exercise data:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
