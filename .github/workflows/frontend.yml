@@ -29,4 +29,4 @@ jobs:
             git pull origin main
 
             # build and run frontend
-            docker compose up --build -d frontend
+            docker compose up -d backend && docker compose --env-file ./backend/.env up --build -d frontend

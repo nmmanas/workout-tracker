@@ -5,7 +5,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
-COPY . /app
+# Copy the entire project, including the public directory
+COPY . .
 
 RUN npm run build
 
