@@ -42,19 +42,21 @@ const Layout = ({ children }) => {
   return (
     <div className="layout">
       <header className="header">
-        <button className="menu-toggle" onClick={toggleMenu}>
-          ☰
-        </button>
-        <nav className={`nav ${menuOpen ? 'open' : ''}`}>
-          <ul>
-            <li><Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
-            <li><Link to="/history" onClick={() => setMenuOpen(false)}>History</Link></li>
-            <li><Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link></li>
-          </ul>
-        </nav>
-        <div className="user-info">
-          {userName && <span className="user-name">Welcome, {userName}</span>}
-          <button onClick={handleLogout} className="logout-button">Logout</button>
+        <div className="header-content">
+          <button className="menu-toggle" onClick={toggleMenu}>
+            ☰
+          </button>
+          <nav className={`nav ${menuOpen ? 'open' : ''}`}>
+            <ul>
+              <li><Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
+              <li><Link to="/history" onClick={() => setMenuOpen(false)}>History</Link></li>
+              <li><Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link></li>
+            </ul>
+          </nav>
+          <div className="user-info">
+            <span className="user-name">Welcome, {userName}</span>
+            <button onClick={handleLogout} className="logout-button">Logout</button>
+          </div>
         </div>
       </header>
       <main className="main-content">

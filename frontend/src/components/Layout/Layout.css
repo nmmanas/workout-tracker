@@ -5,44 +5,63 @@
 }
 
 .header {
-  background-color: #f8f9fa;
-  padding: 1rem;
+  background-color: #333;
+  color: white;
+}
+
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0.5rem 1rem;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: none;
+}
+
+.nav {
+  display: flex;
 }
 
 .nav ul {
   list-style-type: none;
-  display: flex;
-  gap: 1rem;
-  margin: 0;
   padding: 0;
+  margin: 0;
+  display: flex;
 }
 
 .nav ul li a {
+  color: white;
   text-decoration: none;
-  color: #333;
+  padding: 0.5rem 1rem;
+  display: block;
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
 }
 
 .user-name {
   font-weight: bold;
-  color: #333;
+  color: white;
+  margin-right: 1rem;
 }
 
 .logout-button {
   background-color: #dc3545;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.7rem;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .main-content {
@@ -51,46 +70,66 @@
   background-color: #f5f5f5;
 }
 
-.menu-toggle {
-  display: none;
-}
-
 @media (max-width: 768px) {
-  .header {
+  .header-content {
     flex-wrap: wrap;
   }
 
   .menu-toggle {
     display: block;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
+    order: 1;
   }
 
   .nav {
-    flex-basis: 100%;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    order: 3;
   }
 
   .nav.open {
-    max-height: 300px;
+    display: flex;
   }
 
   .nav ul {
     flex-direction: column;
-    padding-top: 1rem;
+    width: 100%;
   }
 
   .nav ul li {
-    padding: 0.5rem 0;
+    border-top: 1px solid #555;
+  }
+
+  .nav ul li a {
+    padding: 0.75rem 1rem;
   }
 
   .user-info {
-    flex-basis: 100%;
+    order: 2;
+    margin-left: auto;
+  }
+
+  .user-name {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .header-content {
+    display: flex;
     justify-content: space-between;
-    margin-top: 1rem;
+    align-items: center;
+  }
+
+  .nav {
+    order: 1;
+  }
+
+  .user-info {
+    order: 2;
+  }
+
+  .menu-toggle {
+    display: none;
   }
 }
