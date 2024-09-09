@@ -43,8 +43,4 @@ build/
 
 # Custom
 .env
-docker-compose.yml
 Makefile
-Dockerfile
-nginx.conf
-.dockerignore
