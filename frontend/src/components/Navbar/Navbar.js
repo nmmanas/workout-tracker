@@ -1,31 +1,31 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar = ({ userName }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+const Navbar = ({ userName, onLogout }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
     <nav className="navbar">
-      <div className="navbar-container">
-        <button className="hamburger" onClick={() => setIsOpen(!isOpen)}>
+      <div className="navbar-content">
+        <button className="menu-toggle" onClick={toggleMenu}>
           ☰
         </button>
-        <span className="welcome-message">Welcome, {userName}</span>
-        <button onClick={handleLogout} className="logout-button">
-          Logout
-        </button>
-      </div>
-      <div className={`navbar-menu ${isOpen ? 'open' : ''}`}>
-        <Link to="/" onClick={() => setIsOpen(false)}>Dashboard</Link>
-        <Link to="/new-workout" onClick={() => setIsOpen(false)}>New Workout</Link>
-        <Link to="/history" onClick={() => setIsOpen(false)}>History</Link>
+        <div className={`nav ${menuOpen ? 'open' : ''}`}>
+          <ul>
+            <li><Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
+            <li><Link to="/history" onClick={() => setMenuOpen(false)}>History</Link></li>
+            <li><Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link></li>
+          </ul>
+        </div>
+        <div className="user-info">
+          <span className="user-name">Welcome, {userName}</span>
+          <button onClick={onLogout} className="logout-button">Logout</button>
+        </div>
       </div>
     </nav>
   );

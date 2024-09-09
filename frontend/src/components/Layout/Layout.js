@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Navbar from '../Navbar/Navbar';
 import './Layout.css';
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [userName, setUserName] = useState('');
 
   useEffect(() => {
@@ -35,30 +35,9 @@ const Layout = ({ children }) => {
     navigate('/login');
   };
 
-  const toggleMenu = () => {
-    setMenuOpen(!menuOpen);
-  };
-
   return (
     <div className="layout">
-      <header className="header">
-        <div className="header-content">
-          <button className="menu-toggle" onClick={toggleMenu}>
-            ☰
-          </button>
-          <nav className={`nav ${menuOpen ? 'open' : ''}`}>
-            <ul>
-              <li><Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
-              <li><Link to="/history" onClick={() => setMenuOpen(false)}>History</Link></li>
-              <li><Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link></li>
-            </ul>
-          </nav>
-          <div className="user-info">
-            <span className="user-name">Welcome, {userName}</span>
-            <button onClick={handleLogout} className="logout-button">Logout</button>
-          </div>
-        </div>
-      </header>
+      <Navbar userName={userName} onLogout={handleLogout} />
       <main className="main-content">
         {children}
       </main>
