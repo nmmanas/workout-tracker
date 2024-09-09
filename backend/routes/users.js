@@ -5,7 +5,7 @@ const User = require('../models/User');
 
 router.get('/me', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-passwordHash');
     res.json(user);
   } catch (error) {
     console.error(error.message);

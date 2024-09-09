@@ -9,6 +9,7 @@ const ExercisesPage = () => {
   const [newExercise, setNewExercise] = useState({ name: '', imageURL: '', videoURL: '', targetedMuscles: '' });
   const [editingExercise, setEditingExercise] = useState(null);
   const [error, setError] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   const fetchExercises = useCallback(async () => {
@@ -21,6 +22,12 @@ const ExercisesPage = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setExercises(response.data);
+
+      // Check if user is admin
+      const userResponse = await axios.get('/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsAdmin(userResponse.data.isAdmin);
     } catch (error) {
       console.error('Error fetching exercises:', error);
       setError('Failed to fetch exercises. Please try again.');
@@ -109,42 +116,47 @@ const ExercisesPage = () => {
 
   return (
     <div className="exercises-page">
-      <h2>{editingExercise ? 'Edit Exercise' : 'Add New Exercise'}</h2>
-      <form onSubmit={handleSubmit} className="exercise-form">
-        <input
-          type="text"
-          name="name"
-          value={editingExercise ? editingExercise.name : newExercise.name}
-          onChange={handleInputChange}
-          placeholder="Exercise Name"
-          required
-        />
-        <input
-          type="url"
-          name="imageURL"
-          value={editingExercise ? editingExercise.imageURL : newExercise.imageURL}
-          onChange={handleInputChange}
-          placeholder="Image URL (optional)"
-        />
-        <input
-          type="url"
-          name="videoURL"
-          value={editingExercise ? editingExercise.videoURL : newExercise.videoURL}
-          onChange={handleInputChange}
-          placeholder="Video URL (optional)"
-        />
-        <input
-          type="text"
-          name="targetedMuscles"
-          value={editingExercise ? editingExercise.targetedMuscles : newExercise.targetedMuscles}
-          onChange={handleInputChange}
-          placeholder="Targeted Muscles (comma-separated, optional)"
-        />
-        <button type="submit">{editingExercise ? 'Update Exercise' : 'Add Exercise'}</button>
-        {editingExercise && (
-          <button type="button" onClick={() => setEditingExercise(null)}>Cancel Edit</button>
-        )}
-      </form>
+      <h2>Exercises</h2>
+      {isAdmin && (
+        <div>
+          <h3>{editingExercise ? 'Edit Exercise' : 'Add New Exercise'}</h3>
+          <form onSubmit={handleSubmit} className="exercise-form">
+            <input
+              type="text"
+              name="name"
+              value={editingExercise ? editingExercise.name : newExercise.name}
+              onChange={handleInputChange}
+              placeholder="Exercise Name"
+              required
+            />
+            <input
+              type="url"
+              name="imageURL"
+              value={editingExercise ? editingExercise.imageURL : newExercise.imageURL}
+              onChange={handleInputChange}
+              placeholder="Image URL (optional)"
+            />
+            <input
+              type="url"
+              name="videoURL"
+              value={editingExercise ? editingExercise.videoURL : newExercise.videoURL}
+              onChange={handleInputChange}
+              placeholder="Video URL (optional)"
+            />
+            <input
+              type="text"
+              name="targetedMuscles"
+              value={editingExercise ? editingExercise.targetedMuscles : newExercise.targetedMuscles}
+              onChange={handleInputChange}
+              placeholder="Targeted Muscles (comma-separated, optional)"
+            />
+            <button type="submit">{editingExercise ? 'Update Exercise' : 'Add Exercise'}</button>
+            {editingExercise && (
+              <button type="button" onClick={() => setEditingExercise(null)}>Cancel Edit</button>
+            )}
+          </form>
+        </div>
+      )}
       <h3>Exercise List</h3>
       <div className="exercise-list">
         {exercises.map((exercise) => (
@@ -155,10 +167,12 @@ const ExercisesPage = () => {
             )}
             {exercise.imageURL && <p>Image URL: {exercise.imageURL}</p>}
             {exercise.videoURL && <p>Video URL: {exercise.videoURL}</p>}
-            <div className="exercise-actions">
-              <button onClick={() => handleEdit(exercise)}>Edit</button>
-              <button onClick={() => handleDelete(exercise._id, exercise.name)}>Delete</button>
-            </div>
+            {isAdmin && (
+              <div className="exercise-actions">
+                <button onClick={() => handleEdit(exercise)}>Edit</button>
+                <button onClick={() => handleDelete(exercise._id, exercise.name)}>Delete</button>
+              </div>
+            )}
           </div>
         ))}
       </div>

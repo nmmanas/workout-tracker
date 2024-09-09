@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const Exercise = require('../models/Exercise');
 const auth = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
 
-// GET all exercises
+// GET all exercises (accessible to all authenticated users)
 router.get('/', auth, async (req, res) => {
   try {
     const exercises = await Exercise.find();
@@ -14,8 +15,8 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST a new exercise
-router.post('/', auth, async (req, res) => {
+// POST a new exercise (admin only)
+router.post('/', auth, adminAuth, async (req, res) => {
   try {
     const newExercise = new Exercise(req.body);
     await newExercise.save();
@@ -25,8 +26,8 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// PUT (update) an exercise
-router.put('/:id', auth, async (req, res) => {
+// PUT (update) an exercise (admin only)
+router.put('/:id', auth, adminAuth, async (req, res) => {
   try {
     const updatedExercise = await Exercise.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedExercise) {
@@ -38,8 +39,8 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
-// DELETE an exercise
-router.delete('/:id', auth, async (req, res) => {
+// DELETE an exercise (admin only)
+router.delete('/:id', auth, adminAuth, async (req, res) => {
   try {
     const deletedExercise = await Exercise.findByIdAndDelete(req.params.id);
     if (!deletedExercise) {
@@ -51,7 +52,7 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
-// GET /api/exercises/last-data/:exerciseName
+// GET /api/exercises/last-data/:exerciseName (accessible to all authenticated users)
 router.get('/last-data/:exerciseName', auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
