@@ -46,6 +46,9 @@ const NewWorkout = () => {
     if (selected) {
       setCurrentExercise(selected);
       setWeight(selected.lastWeight ? selected.lastWeight.toString() : '');
+    } else {
+      setCurrentExercise(null);
+      setSets([]);
     }
   };
 
@@ -105,16 +108,14 @@ const NewWorkout = () => {
   return (
     <div className="new-workout">
       <h2>New Workout</h2>
-      {!currentExercise && (
-        <div className="exercise-select">
-          <select value={selectedExercise} onChange={handleExerciseSelect}>
-            <option value="">Select an exercise</option>
-            {exercises.map(exercise => (
-              <option key={exercise._id} value={exercise._id}>{exercise.name}</option>
-            ))}
-          </select>
-        </div>
-      )}
+      <div className="exercise-select">
+        <select value={selectedExercise} onChange={handleExerciseSelect}>
+          <option value="">Select an exercise</option>
+          {exercises.map(exercise => (
+            <option key={exercise._id} value={exercise._id}>{exercise.name}</option>
+          ))}
+        </select>
+      </div>
       {currentExercise && (
         <div className="current-exercise">
           <h3>{currentExercise.name}</h3>
