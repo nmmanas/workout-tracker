@@ -11,7 +11,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - "5002:5000"
     environment:
       - NODE_ENV=production
       - MONGO_URI=${MONGO_URI}
