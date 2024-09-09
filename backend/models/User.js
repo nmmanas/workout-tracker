@@ -21,6 +21,10 @@ const UserSchema = new mongoose.Schema({
       reps: Number,
       weight: Number
     }
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false
   }
 });
 
