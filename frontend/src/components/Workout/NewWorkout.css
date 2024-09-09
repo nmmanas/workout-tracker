@@ -34,24 +34,64 @@
 
 .set-inputs {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.reps-input,
-.weight-input {
+.reps-input-group,
+.weight-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.reps-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.reps-adjust-button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.reps-adjust-button.increase {
+  background-color: #28a745;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.reps-adjust-button.increase:hover {
+  background-color: #218838;
+}
+
+.reps-adjust-button.decrease {
+  background-color: #6c757d;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.reps-adjust-button.decrease:hover {
+  background-color: #5a6268;
+}
+
+.reps-input {
   flex: 1;
   padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  text-align: center;
 }
 
 .add-set-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
 }
 
 .add-set-button:hover {
@@ -91,6 +131,10 @@
   .set-inputs {
     flex-direction: column;
   }
+  
+  .weight-input-group {
+    width: 100%;
+  }
 }
 
 .exercise-select {
@@ -104,4 +148,59 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   background-color: white;
+}
+
+.weight-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.weight-adjust-button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.weight-adjust-button.increase {
+  background-color: #28a745;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.weight-adjust-button.increase:hover {
+  background-color: #218838;
+}
+
+.weight-adjust-button.decrease {
+  background-color: #6c757d;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.weight-adjust-button.decrease:hover {
+  background-color: #5a6268;
+}
+
+.weight-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .set-inputs {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .add-set-button {
+    margin-top: 0;
+  }
 }

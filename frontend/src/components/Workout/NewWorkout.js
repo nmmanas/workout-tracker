@@ -18,6 +18,20 @@ const NewWorkout = () => {
   const [lastExerciseData, setLastExerciseData] = useState({ reps: '', weight: '' });
   const [lastAddedSet, setLastAddedSet] = useState(null);
 
+  const handleWeightChange = (amount) => {
+    setWeight(prevWeight => {
+      const newWeight = Math.max(0, parseFloat(prevWeight || 0) + amount);
+      return newWeight.toFixed(1); // Ensures we always have one decimal place
+    });
+  };
+
+  const handleRepsChange = (amount) => {
+    setReps(prevReps => {
+      const newReps = Math.max(0, parseInt(prevReps || 0) + amount);
+      return newReps.toString();
+    });
+  };
+
   useEffect(() => {
     const fetchExercises = async () => {
       try {
@@ -150,21 +164,29 @@ const NewWorkout = () => {
         <div className="current-exercise">
           <h3>{currentExercise.name}</h3>
           <div className="set-inputs">
-            <input
-              type="number"
-              value={reps}
-              onChange={(e) => setReps(e.target.value)}
-              placeholder={`Reps (Last: ${lastExerciseData.reps || 'N/A'})`}
-              className="reps-input"
-              ref={repsInputRef}
-            />
-            <input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              placeholder={`Weight (Last: ${lastExerciseData.weight || 'N/A'})`}
-              className="weight-input"
-            />
+            <div className="reps-input-group">
+              <button onClick={() => handleRepsChange(-1)} className="reps-adjust-button decrease">-1</button>
+              <input
+                type="number"
+                value={reps}
+                onChange={(e) => setReps(e.target.value)}
+                placeholder="Reps"
+                className="reps-input"
+                ref={repsInputRef}
+              />
+              <button onClick={() => handleRepsChange(1)} className="reps-adjust-button increase">+1</button>
+            </div>
+            <div className="weight-input-group">
+              <button onClick={() => handleWeightChange(-2.5)} className="weight-adjust-button decrease">-2.5</button>
+              <input
+                type="number"
+                value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                placeholder="Weight (kg)"
+                className="weight-input"
+              />
+              <button onClick={() => handleWeightChange(2.5)} className="weight-adjust-button increase">+2.5</button>
+            </div>
             <button onClick={handleAddSet} className="add-set-button">Add Set</button>
           </div>
           {sets.length > 0 && (
