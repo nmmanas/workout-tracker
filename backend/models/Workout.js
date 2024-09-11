@@ -25,7 +25,12 @@ const WorkoutSchema = new mongoose.Schema({
         required: true
       }
     }]
-  }]
+  }],
+  // Add this new field
+  isDraft: {
+    type: Boolean,
+    default: true
+  }
 });
 
 module.exports = mongoose.model('Workout', WorkoutSchema);

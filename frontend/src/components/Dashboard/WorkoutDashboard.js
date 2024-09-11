@@ -9,6 +9,7 @@ const WorkoutDashboard = () => {
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [hasDraft, setHasDraft] = useState(false);
 
   useEffect(() => {
     const fetchWorkoutHistory = async () => {
@@ -37,7 +38,21 @@ const WorkoutDashboard = () => {
     fetchWorkoutHistory();
   }, [navigate]);
 
+  const checkDraft = async () => {
+    try {
+      const response = await api.get('/workouts/draft');
+      setHasDraft(!!response.data);
+    } catch (error) {
+      console.error('Error checking for draft:', error);
+    }
+  };
+  checkDraft();
+
   const handleStartWorkout = () => {
+    navigate('/new-workout');
+  };
+
+  const handleContinueWorkout = () => {
     navigate('/new-workout');
   };
 
@@ -49,7 +64,11 @@ const WorkoutDashboard = () => {
     <div className="workout-dashboard">
       <div className="dashboard-header">
         <h2>Workout Dashboard</h2>
-        <button onClick={handleStartWorkout} className="start-workout-button">Start Workout</button>
+        {hasDraft ? (
+          <button onClick={handleContinueWorkout} className="start-workout-button">Continue Workout</button>
+        ) : (
+          <button onClick={handleStartWorkout} className="start-workout-button">Start New Workout</button>
+        )}
       </div>
       <div className="workout-history">
         <h3>Recent Workouts</h3>

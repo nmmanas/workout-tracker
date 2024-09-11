@@ -55,6 +55,37 @@ const NewWorkout = () => {
     fetchExercises();
   }, [navigate]);
 
+  useEffect(() => {
+    const fetchDraft = async () => {
+      try {
+        const response = await api.get('/workouts/draft');
+        if (response.data) {
+          setCompletedExercises(response.data.exercises);
+          // Set other state variables as needed
+        }
+      } catch (error) {
+        console.error('Error fetching draft:', error);
+      }
+    };
+    fetchDraft();
+  }, []);
+
+  useEffect(() => {
+    const saveDraft = async () => {
+      if (completedExercises.length > 0) {
+        try {
+          await api.post('/workouts/draft', {
+            date: new Date(),
+            exercises: completedExercises
+          });
+        } catch (error) {
+          console.error('Error saving draft:', error);
+        }
+      }
+    };
+    saveDraft();
+  }, [completedExercises]);
+
   const handleExerciseSelect = async (e) => {
     const exerciseId = e.target.value;
     const selected = exercises.find(ex => ex._id === exerciseId);
@@ -120,28 +151,11 @@ const NewWorkout = () => {
 
   const handleFinishWorkout = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No token found');
-      }
-      
-      const workoutData = {
-        date: new Date(),
-        exercises: completedExercises
-      };
-
-      await api.post('/workouts', workoutData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
+      await api.put('/workouts/finish-draft');
       navigate('/');
     } catch (error) {
-      console.error('Error saving workout:', error);
-      setError('Failed to save workout. Please try again.');
-      if (error.response && error.response.status === 401) {
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
+      console.error('Error finishing workout:', error);
+      setError('Failed to finish workout. Please try again.');
     }
   };
 

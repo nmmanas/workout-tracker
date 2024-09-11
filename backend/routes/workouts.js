@@ -67,4 +67,77 @@ router.get('/suggested', auth, async (req, res) => {
   }
 });
 
+// POST /api/workouts/draft
+router.post('/draft', auth, async (req, res) => {
+  try {
+    const { date, exercises } = req.body;
+    let draft = await Workout.findOne({ user: req.user.id, isDraft: true });
+
+    if (draft) {
+      // Update existing draft
+      draft.date = date;
+      draft.exercises = exercises;
+    } else {
+      // Create new draft
+      draft = new Workout({
+        user: req.user.id,
+        date,
+        exercises,
+        isDraft: true
+      });
+    }
+
+    await draft.save();
+    res.status(201).json(draft);
+  } catch (error) {
+    console.error('Error saving draft workout:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// GET /api/workouts/draft
+router.get('/draft', auth, async (req, res) => {
+  try {
+    const draft = await Workout.findOne({ user: req.user.id, isDraft: true });
+    if (!draft) {
+      return res.status(404).json({ message: 'No draft workout found' });
+    }
+    res.json(draft);
+  } catch (error) {
+    console.error('Error fetching draft workout:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// PUT /api/workouts/finish-draft
+router.put('/finish-draft', auth, async (req, res) => {
+  try {
+    const draft = await Workout.findOne({ user: req.user.id, isDraft: true });
+    if (!draft) {
+      return res.status(404).json({ message: 'No draft workout found' });
+    }
+    draft.isDraft = false;
+    await draft.save();
+
+    // Update the user's lastExerciseData
+    const user = await User.findById(req.user.id);
+    if (!user.lastExerciseData) {
+      user.lastExerciseData = new Map();
+    }
+    draft.exercises.forEach(exercise => {
+      const lastSet = exercise.sets[exercise.sets.length - 1];
+      user.lastExerciseData.set(exercise.name, {
+        reps: lastSet.reps,
+        weight: lastSet.weight
+      });
+    });
+    await user.save();
+
+    res.json(draft);
+  } catch (error) {
+    console.error('Error finishing draft workout:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;
