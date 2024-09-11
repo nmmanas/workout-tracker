@@ -65,7 +65,7 @@ const WorkoutDashboard = () => {
       <div className="dashboard-header">
         <h2>Workout Dashboard</h2>
         {hasDraft ? (
-          <button onClick={handleContinueWorkout} className="start-workout-button">Continue Workout</button>
+          <button onClick={handleContinueWorkout} className="start-workout-button continue-workout">Continue Workout</button>
         ) : (
           <button onClick={handleStartWorkout} className="start-workout-button">Start New Workout</button>
         )}
