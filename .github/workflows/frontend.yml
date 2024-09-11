@@ -6,10 +6,31 @@ on:
     branches:
       - main
     paths:
-      - frontend/**
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
 
 jobs:
-  build-and-deploy:
+  check-backend-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.check_backend.outputs.backend_changed }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Check for backend changes
+        id: check_backend
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^backend/' && echo "backend_changed=true" >> $GITHUB_OUTPUT || echo "backend_changed=false" >> $GITHUB_OUTPUT
+
+  deploy-backend:
+    needs: check-backend-changes
+    if: needs.check-backend-changes.outputs.backend_changed == 'true'
+    uses: ./.github/workflows/backend.yml
+
+  deploy-frontend:
+    needs: [check-backend-changes, deploy-backend]
+    if: always()
     runs-on: ubuntu-latest
 
     steps:

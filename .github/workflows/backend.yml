@@ -2,14 +2,16 @@ name: Deploy Backend of Workout Tracker
 
 on:
   workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - main
     paths:
-      - backend/**
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
 
 jobs:
-  build-and-deploy:
+  deploy-backend:  # Give the job a specific name
     runs-on: ubuntu-latest
 
     steps:
