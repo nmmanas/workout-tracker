@@ -10,6 +10,7 @@ COPY config ./config
 COPY middleware ./middleware
 COPY models ./models
 COPY routes ./routes
+COPY utils ./utils
 
 EXPOSE 5000
 
