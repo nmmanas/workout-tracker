@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
 const User = require('../models/User');
 const rateLimit = require('express-rate-limit');
+const { refreshToken } = require('../utils/tokenUtils');
+const auth = require('../middleware/auth'); // Add this line
 
 // Create a rate limiter middleware
 const signupLimiter = rateLimit({
@@ -94,12 +96,18 @@ router.post('/login', [
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, message: 'Logged in successfully' });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Error logging in' });
   }
+});
+
+// New route for token refresh
+router.post('/refresh-token', auth, (req, res) => {
+  const newToken = refreshToken(req.user.id);
+  res.json({ token: newToken });
 });
 
 module.exports = router;
