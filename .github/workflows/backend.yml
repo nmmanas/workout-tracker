@@ -2,7 +2,6 @@ name: Deploy Backend of Workout Tracker
 
 on:
   workflow_dispatch:
-  workflow_call:
   push:
     branches:
       - main
@@ -11,14 +10,14 @@ on:
       - '.github/workflows/backend.yml'
 
 jobs:
-  deploy-backend:  # Give the job a specific name
+  deploy-backend:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: SSH into VPS and Deploy Project
+      - name: SSH into VPS and Deploy Backend
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}

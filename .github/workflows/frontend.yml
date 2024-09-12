@@ -23,13 +23,8 @@ jobs:
         run: |
           git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -q '^backend/' && echo "backend_changed=true" >> $GITHUB_OUTPUT || echo "backend_changed=false" >> $GITHUB_OUTPUT
 
-  deploy-backend:
-    needs: check-backend-changes
-    if: needs.check-backend-changes.outputs.backend_changed == 'true'
-    uses: ./.github/workflows/backend.yml
-
   deploy-frontend:
-    needs: [check-backend-changes, deploy-backend]
+    needs: [check-backend-changes]
     if: always()
     runs-on: ubuntu-latest
 
@@ -37,7 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: SSH into VPS and Deploy Project
+      - name: SSH into VPS and Deploy Frontend
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_IP }}
@@ -50,4 +45,4 @@ jobs:
             git pull origin main
 
             # build and run frontend
-            docker compose --env-file ./backend/.env up -d backend && docker compose --env-file ./backend/.env up --build -d frontend
+            docker compose --env-file ./backend/.env up --build -d frontend
