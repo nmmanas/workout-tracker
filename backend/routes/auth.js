@@ -7,7 +7,6 @@ const User = require('../models/User');
 const rateLimit = require('express-rate-limit');
 const { refreshToken } = require('../utils/tokenUtils');
 const auth = require('../middleware/auth'); // Add this line
-const Tenant = require('../models/Tenant'); // Add this line
 
 // Create a rate limiter middleware
 const signupLimiter = rateLimit({
@@ -36,11 +35,6 @@ router.post(
     const { name, email, password } = req.body;
 
     try {
-      const defaultTenant = await Tenant.findOne({ subdomain: 'default' });
-      if (!defaultTenant) {
-        return res.status(500).json({ message: 'Default tenant not found' });
-      }
-
       let user = await User.findOne({ email });
 
       if (user) {
@@ -53,8 +47,7 @@ router.post(
       user = new User({
         name,
         email,
-        passwordHash,
-        tenant: defaultTenant._id  // Associate the user with the default tenant
+        passwordHash
       });
 
       await user.save();
@@ -82,7 +75,10 @@ router.post(
 );
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', [
+  check('email', 'Please include a valid email').isEmail().normalizeEmail(),
+  check('password', 'Password is required').exists()
+], async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -100,15 +96,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign(
-      { 
-        userId: user._id,
-        tenantId: user.tenant
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    res.json({ token });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, message: 'Logged in successfully' });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Error logging in' });

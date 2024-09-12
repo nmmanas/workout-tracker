@@ -6,11 +6,6 @@ const WorkoutSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  tenant: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Tenant',
-    required: true
-  },
   date: {
     type: Date,
     required: true
@@ -31,6 +26,7 @@ const WorkoutSchema = new mongoose.Schema({
       }
     }]
   }],
+  // Add this new field
   isDraft: {
     type: Boolean,
     default: true

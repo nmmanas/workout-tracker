@@ -7,13 +7,7 @@ const User = require('../models/User');
 // GET /api/workouts/history
 router.get('/history', auth, async (req, res) => {
   try {
-    if (!req.tenant) {
-      return res.status(400).json({ message: 'Tenant not identified' });
-    }
-    const workouts = await Workout.find({ 
-      user: req.user.id,
-      tenant: req.tenant._id
-    }).sort({ date: -1 });
+    const workouts = await Workout.find({ user: req.user.id }).sort({ date: -1 });
     res.json(workouts);
   } catch (error) {
     console.error('Error fetching workout history:', error);
@@ -27,7 +21,6 @@ router.post('/', auth, async (req, res) => {
     const { date, exercises } = req.body;
     const newWorkout = new Workout({
       user: req.user.id,
-      tenant: req.user.tenant, // Add this line
       date,
       exercises
     });
