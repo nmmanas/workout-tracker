@@ -46,3 +46,6 @@ jobs:
 
             # build and run frontend
             docker compose --env-file ./backend/.env up --build -d frontend
+
+            # prune unused docker resources
+            docker system prune -f
