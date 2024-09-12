@@ -7,6 +7,8 @@ const exercisesRouter = require('./routes/exercises');
 const usersRouter = require('./routes/users');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const identifyTenant = require('./middleware/tenantIdentification');
+const createOrGetDefaultTenant = require('./utils/defaultTenant');
 
 const app = express();
 
@@ -16,11 +18,25 @@ app.set('trust proxy', 1);
 // Connect Database
 connectDB();
 
+// Create or get default tenant
+createOrGetDefaultTenant()
+  .then(defaultTenant => {
+    console.log('Default tenant ID:', defaultTenant._id);
+    // You can store this ID in a global variable or in your app's context if needed
+  })
+  .catch(error => {
+    console.error('Failed to create/get default tenant:', error);
+    process.exit(1);
+  });
+
 // Init Middleware
 app.use(express.json({ extended: false }));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000'
 }));
+
+// Apply tenant identification middleware
+app.use(identifyTenant);
 
 // Define Routes
 app.use('/api/auth', require('./routes/auth'));
