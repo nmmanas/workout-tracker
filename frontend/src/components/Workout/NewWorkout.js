@@ -96,18 +96,33 @@ const NewWorkout = () => {
         const response = await api.get(`/exercises/last-data/${selected.name}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
+        console.log('Last exercise data response:', response.data);
         setLastExerciseData(response.data);
-        setReps(response.data.reps ? response.data.reps.toString() : '');
-        setWeight(response.data.weight !== undefined ? response.data.weight.toString() : '');
+        
+        const newReps = response.data.reps ? response.data.reps.toString() : '10';
+        const newWeight = response.data.weight !== null && response.data.weight !== undefined ? response.data.weight.toString() : '0';
+        
+        console.log('Setting new reps:', newReps);
+        console.log('Setting new weight:', newWeight);
+        
+        setReps(newReps);
+        setWeight(newWeight);
         setLastAddedSet(null); // Reset lastAddedSet when selecting a new exercise
       } catch (error) {
         console.error('Error fetching last exercise data:', error);
+        // If there's no previous data, set default values
+        console.log('Setting default values');
+        setLastExerciseData({ reps: '10', weight: '0' });
+        setReps('10');
+        setWeight('0');
       }
     } else {
       setCurrentExercise(null);
       setSets([]);
       setLastExerciseData({ reps: '', weight: '' });
       setLastAddedSet(null);
+      setReps('');
+      setWeight('');
     }
   };
 
@@ -131,10 +146,14 @@ const NewWorkout = () => {
   useEffect(() => {
     if (currentExercise && !lastAddedSet) {
       // Autofill with last exercise data when selecting a new exercise
-      setReps(lastExerciseData.reps ? lastExerciseData.reps.toString() : '');
-      setWeight(lastExerciseData.weight !== undefined ? lastExerciseData.weight.toString() : '');
+      console.log('Updating reps and weight from lastExerciseData:', lastExerciseData);
+      const newReps = lastExerciseData.reps ? lastExerciseData.reps.toString() : '10';
+      const newWeight = lastExerciseData.weight !== null && lastExerciseData.weight !== undefined ? lastExerciseData.weight.toString() : '0';
+      setReps(newReps);
+      setWeight(newWeight);
     } else if (lastAddedSet) {
       // Autofill with the last added set for subsequent sets
+      console.log('Updating reps and weight from lastAddedSet:', lastAddedSet);
       setReps(lastAddedSet.reps.toString());
       setWeight(lastAddedSet.weight.toString());
     }
