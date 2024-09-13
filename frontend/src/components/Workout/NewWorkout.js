@@ -98,7 +98,7 @@ const NewWorkout = () => {
         });
         setLastExerciseData(response.data);
         setReps(response.data.reps ? response.data.reps.toString() : '');
-        setWeight(response.data.weight ? response.data.weight.toString() : '');
+        setWeight(response.data.weight !== undefined ? response.data.weight.toString() : '');
         setLastAddedSet(null); // Reset lastAddedSet when selecting a new exercise
       } catch (error) {
         console.error('Error fetching last exercise data:', error);
@@ -132,7 +132,7 @@ const NewWorkout = () => {
     if (currentExercise && !lastAddedSet) {
       // Autofill with last exercise data when selecting a new exercise
       setReps(lastExerciseData.reps ? lastExerciseData.reps.toString() : '');
-      setWeight(lastExerciseData.weight ? lastExerciseData.weight.toString() : '');
+      setWeight(lastExerciseData.weight !== undefined ? lastExerciseData.weight.toString() : '');
     } else if (lastAddedSet) {
       // Autofill with the last added set for subsequent sets
       setReps(lastAddedSet.reps.toString());
