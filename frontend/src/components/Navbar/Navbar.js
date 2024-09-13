@@ -13,7 +13,9 @@ const Navbar = ({ userName, onLogout, isAdmin }) => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <img src={logo} alt="WTracker Logo" className="logo-image" />
+        <Link to="/" className="logo-link">
+          <img src={logo} alt="WTracker Logo" className="logo-image" />
+        </Link>
         <span className="user-name">Welcome, {userName}</span>
         <button className="menu-toggle" onClick={toggleMenu}>
           ☰

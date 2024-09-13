@@ -69,6 +69,12 @@
   background-color: #444;
 }
 
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
 @media (min-width: 769px) {
   .navbar-content {
     flex-wrap: nowrap;
