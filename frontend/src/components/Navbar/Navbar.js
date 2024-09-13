@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './Navbar.css';
 import logo from '../../assets/logo.png';  // Import the logo
 
-const Navbar = ({ userName, onLogout }) => {
+const Navbar = ({ userName, onLogout, isAdmin }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -22,6 +22,9 @@ const Navbar = ({ userName, onLogout }) => {
           <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
           <Link to="/history" onClick={() => setMenuOpen(false)}>History</Link>
           <Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link>
+          {isAdmin && (
+            <Link to="/users" onClick={() => setMenuOpen(false)}>Users</Link>
+          )}
           <button onClick={onLogout} className="logout-button">Logout</button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import WorkoutHistory from './components/History/WorkoutHistory';
 import NewWorkout from './components/Workout/NewWorkout';
 import ExercisesPage from './components/Exercises/ExercisesPage';
 import Layout from './components/Layout/Layout';
+import UsersPage from './components/Users/UsersPage';
 
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -33,6 +34,7 @@ function App() {
                   <Route path="/history" element={<WorkoutHistory />} />
                   <Route path="/new-workout" element={<NewWorkout />} />
                   <Route path="/exercises" element={<ExercisesPage />} />
+                  <Route path="/users" element={<UsersPage />} />
                 </Routes>
               </Layout>
             </ProtectedRoute>

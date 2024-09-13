@@ -7,6 +7,7 @@ import './Layout.css';
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const [userName, setUserName] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -19,6 +20,7 @@ const Layout = ({ children }) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserName(response.data.name);
+        setIsAdmin(response.data.isAdmin);
       } catch (error) {
         console.error('Error fetching user info:', error);
         if (error.response && error.response.status === 401) {
@@ -37,7 +39,7 @@ const Layout = ({ children }) => {
 
   return (
     <div className="layout">
-      <Navbar userName={userName} onLogout={handleLogout} />
+      <Navbar userName={userName} onLogout={handleLogout} isAdmin={isAdmin} />
       <main className="main-content">
         {children}
       </main>
