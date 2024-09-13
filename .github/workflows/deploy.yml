@@ -1,6 +1,7 @@
 name: Backend and Frontend Deploy
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'backend/**'
