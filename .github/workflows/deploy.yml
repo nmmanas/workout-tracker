@@ -1,0 +1,59 @@
+name: Backend and Frontend Deploy
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.commits.*.modified, 'backend/') || contains(github.event.commits.*.added, 'backend/') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: SSH into VPS and Deploy Backend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+            host: ${{ secrets.VPS_IP }}
+            username: root
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+                cd /var/www/workout-tracker
+    
+                # Pull the latest changes from the repository
+                git pull origin main
+    
+                # build and run backend
+                docker compose --env-file ./backend/.env up --build -d backend
+    
+                # prune unused docker resources
+                docker system prune -f
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend  # Optional: Ensure frontend runs after backend if both change
+    if: ${{ contains(github.event.commits.*.modified, 'frontend/') || contains(github.event.commits.*.added, 'frontend/') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: SSH into VPS and Deploy Frontend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+            host: ${{ secrets.VPS_IP }}
+            username: root
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+                cd /var/www/workout-tracker
+
+                # Pull the latest changes from the repository
+                git pull origin main
+
+                # build and run frontend
+                docker compose --env-file ./backend/.env up --build -d frontend
+
+                # prune unused docker resources
+                docker system prune -f
