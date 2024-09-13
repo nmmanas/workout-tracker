@@ -1,15 +1,16 @@
 # Database Design (MongoDB)
 
 ## Users Collection:
-Tracks user authentication details and references workout history.
+Tracks user authentication details and last exercise data.
 
 ```
 {
-  "_id": ObjectId,
+  "id": ObjectId,
   "email": String,
   "passwordHash": String,
   "name": String,
-  "workoutHistory": [Workout]
+  "lastExerciseData": Map, // Stores last used weight and reps for each exercise
+  "isAdmin": Boolean
 }
 ```
 
@@ -18,23 +19,21 @@ Tracks each workout, including the exercises, weights, reps, and sets.
 
 ```
 {
-  "_id": ObjectId,
-  "userId": ObjectId,
+  "id": ObjectId,
+  "user": ObjectId, // Reference to User
   "date": Date,
-  "workoutOrder": [String],  // Order of exercises
   "exercises": [
     {
-      "exerciseId": String,   // Exercise reference
-      "name": String,         // Exercise name (can be fetched dynamically)
+      "name": String,
       "sets": [
         {
-          "setNumber": Number,  // Set index (1, 2, 3)
-          "reps": Number,       // Repetitions for each set
-          "weight": Number      // Weight used for each set
+          "reps": Number,
+          "weight": Number
         }
       ]
     }
-  ]
+  ],
+  "isDraft": Boolean
 }
 ```
 
@@ -43,10 +42,10 @@ Stores the details of individual exercises, including a video URL for the correc
 
 ```
 {
-  "_id": ObjectId,
+  "id": ObjectId,
   "name": String,
   "targetedMuscles": [String], // List of muscles targeted
-  "videoURL": String,          // URL to GIF/Video demonstrating form
+  "videoURL": String,          // URL to video demonstrating form
   "imageURL": String           // URL to image showing muscles targeted
 }
 ```
