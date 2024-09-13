@@ -3,15 +3,13 @@ name: Backend and Frontend Deploy
 on:
   workflow_dispatch:
   push:
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - .github/workflows/deploy.yml
+    branches:
+      - main
 
 jobs:
   deploy-backend:
     runs-on: ubuntu-latest
-    if: ${{ contains(github.event.commits.*.modified, 'backend/') || contains(github.event.commits.*.added, 'backend/') }}
+    if: contains(join(github.event.commits.*.message), 'deploy-backend') || contains(github.event.commits.*.modified, 'backend/') || contains(github.event.commits.*.added, 'backend/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -37,7 +35,7 @@ jobs:
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: deploy-backend  # Optional: Ensure frontend runs after backend if both change
-    if: ${{ contains(github.event.commits.*.modified, 'frontend/') || contains(github.event.commits.*.added, 'frontend/') }}
+    if: contains(join(github.event.commits.*.message), 'deploy-frontend') || contains(github.event.commits.*.modified, 'frontend/') || contains(github.event.commits.*.added, 'frontend/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
