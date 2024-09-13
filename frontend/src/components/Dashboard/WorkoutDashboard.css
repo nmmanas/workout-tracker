@@ -55,6 +55,27 @@
   border-left: 2px solid #007bff;
 }
 
+.workout-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.discard-draft-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.discard-draft-button:hover {
+  background-color: #c82333;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
@@ -63,6 +84,15 @@
 
   .start-workout-button {
     margin-top: 1rem;
+    width: 100%;
+  }
+
+  .workout-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .workout-actions button {
     width: 100%;
   }
 }

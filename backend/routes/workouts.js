@@ -140,4 +140,18 @@ router.put('/finish-draft', auth, async (req, res) => {
   }
 });
 
+// DELETE /api/workouts/draft
+router.delete('/draft', auth, async (req, res) => {
+  try {
+    const result = await Workout.findOneAndDelete({ user: req.user.id, isDraft: true });
+    if (!result) {
+      return res.status(404).json({ message: 'No draft workout found' });
+    }
+    res.json({ message: 'Draft workout discarded successfully' });
+  } catch (error) {
+    console.error('Error discarding draft workout:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

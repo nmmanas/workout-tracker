@@ -56,6 +56,19 @@ const WorkoutDashboard = () => {
     navigate('/new-workout');
   };
 
+  const handleDiscardDraft = async () => {
+    const isConfirmed = window.confirm("Are you sure you want to discard the draft workout?");
+    if (isConfirmed) {
+      try {
+        await api.delete('/workouts/draft');
+        setHasDraft(false);
+      } catch (error) {
+        console.error('Error discarding draft workout:', error);
+        setError('Failed to discard draft workout. Please try again.');
+      }
+    }
+  };
+
   if (error) {
     return <div className="error-message">{error}</div>;
   }
@@ -65,7 +78,10 @@ const WorkoutDashboard = () => {
       <div className="dashboard-header">
         <h2>Workout Dashboard</h2>
         {hasDraft ? (
-          <button onClick={handleContinueWorkout} className="start-workout-button continue-workout">Continue Workout</button>
+          <div className="workout-actions">
+            <button onClick={handleContinueWorkout} className="start-workout-button continue-workout">Continue Workout</button>
+            <button onClick={handleDiscardDraft} className="discard-draft-button">Discard Draft</button>
+          </div>
         ) : (
           <button onClick={handleStartWorkout} className="start-workout-button">Start New Workout</button>
         )}
