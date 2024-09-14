@@ -66,5 +66,6 @@ jobs:
             script: |
                 cd /var/www/workout-tracker
                 git pull origin main
-                docker compose --env-file ./backend/.env up --build -d frontend
+                docker compose --env-file ./backend/.env build --build-arg BUILDKIT_INLINE_CACHE=1 frontend
+                docker compose --env-file ./backend/.env up -d frontend
                 docker system prune -f
