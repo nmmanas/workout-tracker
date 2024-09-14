@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // Add this line
 import api from '../../api/axiosConfig';
 import '../common.css';
@@ -13,7 +13,6 @@ const NewWorkout = () => {
   const [reps, setReps] = useState('');
   const [weight, setWeight] = useState('');
   const [sets, setSets] = useState([]);
-  const repsInputRef = useRef(null);
   const navigate = useNavigate();
   const [lastExerciseData, setLastExerciseData] = useState({ reps: '', weight: '' });
   const [lastAddedSet, setLastAddedSet] = useState(null);
@@ -136,10 +135,10 @@ const NewWorkout = () => {
       setReps(newSet.reps.toString());
       setWeight(newSet.weight.toString());
       
-      // Set focus on the reps input field
-      if (repsInputRef.current) {
-        repsInputRef.current.focus();
-      }
+      // Remove the following lines:
+      // if (repsInputRef.current) {
+      //   repsInputRef.current.focus();
+      // }
     }
   };
 
@@ -205,7 +204,6 @@ const NewWorkout = () => {
                 onChange={(e) => setReps(e.target.value)}
                 placeholder="Reps"
                 className="reps-input"
-                ref={repsInputRef}
               />
               <button onClick={() => handleRepsChange(1)} className="reps-adjust-button increase">+1</button>
             </div>
