@@ -52,7 +52,7 @@ jobs:
                 docker system prune -f
 
   deploy-frontend:
-    needs: [check-changes, deploy-backend]
+    needs: [check-changes]
     if: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}
     runs-on: ubuntu-latest
     steps:
