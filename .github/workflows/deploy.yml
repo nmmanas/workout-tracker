@@ -28,6 +28,10 @@ jobs:
     if: ${{ needs.check-changes.outputs.backend == 'true' || contains(github.event.head_commit.message, 'deploy-backend') }}
     runs-on: ubuntu-latest
     steps:
+      - name: Debug check-changes output
+        run: |
+          echo "Backend changes detected: ${{ needs.check-changes.outputs.backend }}"
+
       - name: Checkout code
         uses: actions/checkout@v2
   
@@ -48,6 +52,10 @@ jobs:
     if: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}
     runs-on: ubuntu-latest
     steps:
+      - name: Debug check-changes output
+        run: |
+          echo "Frontend changes detected: ${{ needs.check-changes.outputs.frontend }}"
+
       - name: Checkout code
         uses: actions/checkout@v2
 
