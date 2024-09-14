@@ -1,15 +1,17 @@
 import api from '../../api/axiosConfig';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // Add this line
+import { useNavigate } from 'react-router-dom';
 import '../common.css';
 import './WorkoutDashboard.css';
 import WorkoutHistoryList from '../Common/WorkoutHistoryList';
+import ConfirmationModal from '../Common/ConfirmationModal'; // Import the modal
 
 const WorkoutDashboard = () => {
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [hasDraft, setHasDraft] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
 
   useEffect(() => {
     const fetchWorkoutHistory = async () => {
@@ -56,17 +58,27 @@ const WorkoutDashboard = () => {
     navigate('/new-workout');
   };
 
-  const handleDiscardDraft = async () => {
-    const isConfirmed = window.confirm("Are you sure you want to discard the draft workout?");
-    if (isConfirmed) {
-      try {
-        await api.delete('/workouts/draft');
-        setHasDraft(false);
-      } catch (error) {
-        console.error('Error discarding draft workout:', error);
-        setError('Failed to discard draft workout. Please try again.');
-      }
+  const handleDiscardDraft = () => {
+    setIsModalOpen(true); // Open the modal
+  };
+
+  const confirmDiscardDraft = async () => {
+    try {
+      await api.delete('/workouts/draft');
+      setHasDraft(false);
+      
+      // Update workoutHistory to remove the draft workout
+      setWorkoutHistory(prevHistory => prevHistory.filter(workout => !workout.isDraft));
+      
+      setIsModalOpen(false); // Close the modal
+    } catch (error) {
+      console.error('Error discarding draft workout:', error);
+      setError('Failed to discard draft workout. Please try again.');
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false); // Close the modal
   };
 
   if (error) {
@@ -89,11 +101,19 @@ const WorkoutDashboard = () => {
       <div className="workout-history">
         <h3>Recent Workouts</h3>
         {workoutHistory.length > 0 ? (
-          <WorkoutHistoryList workouts={workoutHistory} limit={5} />
+          <WorkoutHistoryList workouts={workoutHistory.map(workout => ({
+            ...workout,
+            isDraft: workout.isDraft || false
+          }))} limit={5} />
         ) : (
           <p>No workout history available.</p>
         )}
       </div>
+      <ConfirmationModal 
+        isOpen={isModalOpen} 
+        onClose={closeModal} 
+        onConfirm={confirmDiscardDraft} 
+      />
     </div>
   );
 };

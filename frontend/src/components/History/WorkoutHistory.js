@@ -42,7 +42,10 @@ const WorkoutHistory = () => {
         onChange={handleFilterChange}
         className="form-input filter-input"
       />
-      <WorkoutHistoryList workouts={filteredWorkouts} />
+      <WorkoutHistoryList workouts={filteredWorkouts.map(workout => ({
+        ...workout,
+        isDraft: workout.isDraft || false // Ensure isDraft is set
+      }))} />
     </div>
   );
 };

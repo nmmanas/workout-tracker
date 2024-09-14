@@ -76,6 +76,12 @@
   background-color: #c82333;
 }
 
+.draft-label {
+  color: #dc3545; /* Red color for visibility */
+  font-weight: bold;
+  margin-left: 10px;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;

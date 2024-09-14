@@ -9,6 +9,7 @@ const WorkoutHistoryList = ({ workouts, limit }) => {
       {displayWorkouts.map((workout, index) => (
         <div key={index} className="history-item">
           <h4>Workout on {new Date(workout.date).toLocaleDateString()}</h4>
+          {workout.isDraft && <span className="draft-label">Draft Workout</span>}
           {workout.exercises.map((exercise, idx) => (
             <div key={idx} className="exercise-entry">
               <strong>{exercise.name}</strong>
