@@ -3,6 +3,7 @@ const router = express.Router();
 const Workout = require('../models/Workout');
 const auth = require('../middleware/auth');
 const User = require('../models/User');
+const Exercise = require('../models/Exercise'); // Add this line
 
 // GET /api/workouts/history
 router.get('/history', auth, async (req, res) => {
@@ -22,12 +23,15 @@ router.post('/', auth, async (req, res) => {
     const newWorkout = new Workout({
       user: req.user.id,
       date,
-      exercises
+      exercises: exercises.map((exercise, index) => ({
+        ...exercise,
+        order: index + 1
+      }))
     });
 
     await newWorkout.save();
 
-    // Update the user's lastExerciseData
+    // Update the user's lastExerciseData and exerciseOrderHistory
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -35,13 +39,22 @@ router.post('/', auth, async (req, res) => {
     if (!user.lastExerciseData) {
       user.lastExerciseData = new Map();
     }
-    exercises.forEach(exercise => {
+    if (!user.exerciseOrderHistory) {
+      user.exerciseOrderHistory = new Map();
+    }
+
+    exercises.forEach((exercise, index) => {
       const lastSet = exercise.sets[exercise.sets.length - 1];
       user.lastExerciseData.set(exercise.name, {
         reps: lastSet.reps,
         weight: lastSet.weight
       });
+
+      // Update exercise order history
+      const currentCount = user.exerciseOrderHistory.get(exercise.name) || 0;
+      user.exerciseOrderHistory.set(exercise.name, currentCount + index + 1);
     });
+
     await user.save();
 
     res.status(201).json(newWorkout);
@@ -67,6 +80,34 @@ router.get('/suggested', auth, async (req, res) => {
   }
 });
 
+// New endpoint to get suggested next exercise
+router.get('/suggested-next', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const exercises = await Exercise.find();
+    if (user.exerciseOrderHistory.size === 0) {
+      // First-time user: return all exercises
+      return res.json(exercises);
+    }
+
+    // Sort exercises based on their average order in the user's history
+    const sortedExercises = exercises.sort((a, b) => {
+      const aOrder = user.exerciseOrderHistory.get(a.name) || 0;
+      const bOrder = user.exerciseOrderHistory.get(b.name) || 0;
+      return aOrder - bOrder;
+    });
+
+    res.json(sortedExercises);
+  } catch (error) {
+    console.error('Error fetching suggested next exercise:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // POST /api/workouts/draft
 router.post('/draft', auth, async (req, res) => {
   try {
@@ -76,13 +117,19 @@ router.post('/draft', auth, async (req, res) => {
     if (draft) {
       // Update existing draft
       draft.date = date;
-      draft.exercises = exercises;
+      draft.exercises = exercises.map((exercise, index) => ({
+        ...exercise,
+        order: index + 1 // Ensure order is set
+      }));
     } else {
       // Create new draft
       draft = new Workout({
         user: req.user.id,
         date,
-        exercises,
+        exercises: exercises.map((exercise, index) => ({
+          ...exercise,
+          order: index + 1 // Ensure order is set
+        })),
         isDraft: true
       });
     }

@@ -15,6 +15,10 @@ const WorkoutSchema = new mongoose.Schema({
       type: String,
       required: true
     },
+    order: {
+      type: Number,
+      required: true
+    },
     sets: [{
       reps: {
         type: Number,

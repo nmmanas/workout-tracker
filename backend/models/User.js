@@ -25,6 +25,11 @@ const UserSchema = new mongoose.Schema({
   isAdmin: {
     type: Boolean,
     default: false
+  },
+  exerciseOrderHistory: {
+    type: Map,
+    of: Number,
+    default: new Map()
   }
 });
 

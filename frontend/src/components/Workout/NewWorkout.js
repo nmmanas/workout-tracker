@@ -16,6 +16,7 @@ const NewWorkout = () => {
   const navigate = useNavigate();
   const [lastExerciseData, setLastExerciseData] = useState({ reps: '', weight: '' });
   const [lastAddedSet, setLastAddedSet] = useState(null);
+  const [suggestedExercises, setSuggestedExercises] = useState([]);
 
   const handleWeightChange = (amount) => {
     setWeight(prevWeight => {
@@ -85,6 +86,26 @@ const NewWorkout = () => {
     saveDraft();
   }, [completedExercises]);
 
+  useEffect(() => {
+    const fetchSuggestedExercises = async () => {
+      try {
+        const response = await api.get('/workouts/suggested-next');
+        console.log('Fetched suggested exercises:', response.data);
+        setSuggestedExercises(response.data);
+        if (response.data.length > 0) {
+          const firstExercise = response.data[0];
+          setCurrentExercise(firstExercise);
+          setSelectedExercise(firstExercise._id);
+          fetchLastExerciseData(firstExercise.name); // Fetch last data for the first exercise
+        }
+      } catch (error) {
+        console.error('Error fetching suggested exercises:', error);
+        setError('Failed to fetch suggested exercises. Please try again.');
+      }
+    };
+    fetchSuggestedExercises();
+  }, []);
+
   const handleExerciseSelect = async (e) => {
     const exerciseId = e.target.value;
     const selected = exercises.find(ex => ex._id === exerciseId);
@@ -98,8 +119,9 @@ const NewWorkout = () => {
         console.log('Last exercise data response:', response.data);
         setLastExerciseData(response.data);
         
-        const newReps = response.data.reps ? response.data.reps.toString() : '10';
-        const newWeight = response.data.weight !== null && response.data.weight !== undefined ? response.data.weight.toString() : '0';
+        // Set reps and weight based on last exercise data
+        const newReps = response.data.reps !== null ? response.data.reps.toString() : '10';
+        const newWeight = response.data.weight !== null ? response.data.weight.toString() : '0';
         
         console.log('Setting new reps:', newReps);
         console.log('Setting new weight:', newWeight);
@@ -120,8 +142,6 @@ const NewWorkout = () => {
       setSets([]);
       setLastExerciseData({ reps: '', weight: '' });
       setLastAddedSet(null);
-      setReps('');
-      setWeight('');
     }
   };
 
@@ -143,7 +163,7 @@ const NewWorkout = () => {
   };
 
   useEffect(() => {
-    if (currentExercise && !lastAddedSet) {
+    if (currentExercise) {
       // Autofill with last exercise data when selecting a new exercise
       console.log('Updating reps and weight from lastExerciseData:', lastExerciseData);
       const newReps = lastExerciseData.reps ? lastExerciseData.reps.toString() : '10';
@@ -164,6 +184,41 @@ const NewWorkout = () => {
       setCurrentExercise(null);
       setSelectedExercise('');
       setSets([]);
+
+      // Automatically select the next exercise
+      const nextExerciseIndex = suggestedExercises.findIndex(ex => ex._id === currentExercise._id) + 1;
+      if (nextExerciseIndex < suggestedExercises.length) {
+        const nextExercise = suggestedExercises[nextExerciseIndex];
+        console.log('Automatically selecting next exercise:', nextExercise.name);
+        setCurrentExercise(nextExercise);
+        setSelectedExercise(nextExercise._id);
+        setSets([]); // Reset sets for the new exercise
+        
+        // Fetch last data for the next exercise
+        fetchLastExerciseData(nextExercise.name); // Ensure this is called
+      }
+    }
+  };
+
+  // Helper function to fetch last exercise data
+  const fetchLastExerciseData = async (exerciseName) => {
+    try {
+      console.log(`Fetching last exercise data for: ${exerciseName}`);
+      const response = await api.get(`/exercises/last-data/${exerciseName}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      console.log('Fetched last exercise data:', response.data);
+      setLastExerciseData(response.data);
+      const newReps = response.data.reps !== null ? response.data.reps.toString() : '10';
+      const newWeight = response.data.weight !== null ? response.data.weight.toString() : '0';
+      console.log('Setting reps to:', newReps, 'and weight to:', newWeight);
+      setReps(newReps);
+      setWeight(newWeight);
+    } catch (error) {
+      console.error('Error fetching last exercise data:', error);
+      setLastExerciseData({ reps: '10', weight: '0' });
+      setReps('10');
+      setWeight('0');
     }
   };
 
@@ -187,7 +242,7 @@ const NewWorkout = () => {
       <div className="exercise-select">
         <select value={selectedExercise} onChange={handleExerciseSelect}>
           <option value="">Select an exercise</option>
-          {exercises.map(exercise => (
+          {suggestedExercises.map(exercise => (
             <option key={exercise._id} value={exercise._id}>{exercise.name}</option>
           ))}
         </select>
