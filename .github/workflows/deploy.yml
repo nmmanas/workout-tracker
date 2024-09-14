@@ -22,6 +22,10 @@ jobs:
             - 'backend/**'
           frontend:
             - 'frontend/**'
+    - name: Debug filter outputs
+      run: |
+        echo "Backend changes: ${{ steps.filter.outputs.backend }}"
+        echo "Frontend changes: ${{ steps.filter.outputs.frontend }}"
 
   deploy-backend:
     needs: check-changes
@@ -52,12 +56,12 @@ jobs:
     if: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}
     runs-on: ubuntu-latest
     steps:
-      - name: Debug check-changes output
+      - name: Debug information
         run: |
           echo "Frontend changes detected: ${{ needs.check-changes.outputs.frontend }}"
-
-      - name: Checkout code
-        uses: actions/checkout@v2
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          echo "Contains 'deploy-frontend': ${{ contains(github.event.head_commit.message, 'deploy-frontend') }}"
+          echo "Condition evaluation: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}"
 
       - name: Cache node modules
         uses: actions/cache@v2
