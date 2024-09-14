@@ -59,16 +59,34 @@ const NewWorkout = () => {
     const fetchDraft = async () => {
       try {
         const response = await api.get('/workouts/draft');
-        if (response.data) {
+        if (response.data && response.data.exercises.length > 0) {
           setCompletedExercises(response.data.exercises);
-          // Set other state variables as needed
+          
+          // 1. Find the last added exercise to the draft workout
+          const lastExercise = response.data.exercises[response.data.exercises.length - 1];
+          
+          // 2. Pick the next exercise based on the last added one
+          const lastExerciseIndex = suggestedExercises.findIndex(ex => ex.name === lastExercise.name);
+          if (lastExerciseIndex !== -1 && lastExerciseIndex + 1 < suggestedExercises.length) {
+            const nextExercise = suggestedExercises[lastExerciseIndex + 1];
+            
+            // 3. Populate the exercise picker with the next exercise
+            setCurrentExercise(nextExercise);
+            setSelectedExercise(nextExercise._id);
+            
+            // Fetch last data for the next exercise
+            fetchLastExerciseData(nextExercise.name);
+          } else {
+            console.log('No more exercises available in the suggested list.');
+            // You might want to handle this case, perhaps by allowing the user to select any exercise
+          }
         }
       } catch (error) {
         console.error('Error fetching draft:', error);
       }
     };
     fetchDraft();
-  }, []);
+  }, [suggestedExercises]); // Add suggestedExercises as a dependency
 
   useEffect(() => {
     const saveDraft = async () => {
