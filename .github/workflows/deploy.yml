@@ -52,16 +52,24 @@ jobs:
                 docker system prune -f
 
   deploy-frontend:
-    needs: [check-changes]
+    needs: check-changes
     if: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for backend deployment
+        if: ${{ needs.check-changes.outputs.backend == 'true' || contains(github.event.head_commit.message, 'deploy-backend') }}
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'deploy-backend'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
       - name: Debug information
         run: |
           echo "Frontend changes detected: ${{ needs.check-changes.outputs.frontend }}"
           echo "Commit message: ${{ github.event.head_commit.message }}"
           echo "Contains 'deploy-frontend': ${{ contains(github.event.head_commit.message, 'deploy-frontend') }}"
-          echo "Condition evaluation: ${{ needs.check-changes.outputs.frontend == 'true' || contains(github.event.head_commit.message, 'deploy-frontend') }}"
 
       - name: Cache node modules
         uses: actions/cache@v2
