@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../common.css';
 import './ExercisesPage.css';
+import ConfirmationModal from '../Common/ConfirmationModal'; // Import the ConfirmationModal
 
 const ExercisesPage = () => {
   const [exercises, setExercises] = useState([]);
@@ -11,6 +12,8 @@ const ExercisesPage = () => {
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [exerciseToDelete, setExerciseToDelete] = useState(null);
 
   const fetchExercises = useCallback(async () => {
     try {
@@ -91,23 +94,34 @@ const ExercisesPage = () => {
     });
   };
 
-  const handleDelete = async (id, name) => {
-    const isConfirmed = window.confirm(`Are you sure you want to delete the exercise "${name}"?`);
-    if (isConfirmed) {
+  const handleDelete = (exercise) => {
+    setExerciseToDelete(exercise);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (exerciseToDelete) {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('No token found');
         }
-        await axios.delete(`/api/exercises/${id}`, {
+        await axios.delete(`/api/exercises/${exerciseToDelete._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchExercises();
+        setIsDeleteModalOpen(false);
+        setExerciseToDelete(null);
       } catch (error) {
         console.error('Error deleting exercise:', error);
         setError('Failed to delete exercise. Please try again.');
       }
     }
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setExerciseToDelete(null);
   };
 
   if (error) {
@@ -170,12 +184,19 @@ const ExercisesPage = () => {
             {isAdmin && (
               <div className="exercise-actions">
                 <button onClick={() => handleEdit(exercise)}>Edit</button>
-                <button onClick={() => handleDelete(exercise._id, exercise.name)}>Delete</button>
+                <button onClick={() => handleDelete(exercise)}>Delete</button>
               </div>
             )}
           </div>
         ))}
       </div>
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        onConfirm={confirmDelete}
+        title="Confirm Exercise Deletion"
+        message={`Are you sure you want to delete the exercise "${exerciseToDelete?.name}"?`}
+      />
     </div>
   );
 };

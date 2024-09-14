@@ -113,6 +113,8 @@ const WorkoutDashboard = () => {
         isOpen={isModalOpen} 
         onClose={closeModal} 
         onConfirm={confirmDiscardDraft} 
+        title="Confirm Discard Draft"
+        message="Are you sure you want to discard the draft workout?"
       />
     </div>
   );
