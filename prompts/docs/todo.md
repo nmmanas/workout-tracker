@@ -1,11 +1,10 @@
 TODO:
 1. paginate workout history
 2. add a button to delete a workout from history
-3. instead of entering sets to excercises, show list of sets for each excercise with a complete button for each set, with a button to add another set
-4. add a button to delete a set from an excercise
-5. add a button to delete an excercise from a workout
-6. edit sets for an excercise
-7. edit excercises for a workout
+3. add a button to delete a set from an excercise
+4. add a button to delete an excercise from a workout
+5. edit sets for an excercise
+6. edit excercises for a workout
 
 
 DONE:
@@ -18,3 +17,4 @@ DONE:
 7. for all the dialog box confirmations, use html boxes:
     i. deleting an excercise from excersie master list
     ii. deleting draft excercise
+8. instead of entering sets to excercises, show list of sets for each excercise with a complete button for each set, with a button to add another set
