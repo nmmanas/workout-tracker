@@ -5,6 +5,7 @@ import '../common.css';
 import './WorkoutDashboard.css';
 import WorkoutHistoryList from '../Common/WorkoutHistoryList';
 import ConfirmationModal from '../Common/ConfirmationModal'; // Import the modal
+import { FaSpinner } from 'react-icons/fa'; // Add this import
 
 const WorkoutDashboard = () => {
   const [workoutHistory, setWorkoutHistory] = useState([]);
@@ -12,6 +13,7 @@ const WorkoutDashboard = () => {
   const navigate = useNavigate();
   const [hasDraft, setHasDraft] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [isLoading, setIsLoading] = useState(false); // Add this state
 
   useEffect(() => {
     const fetchWorkoutHistory = async () => {
@@ -63,6 +65,7 @@ const WorkoutDashboard = () => {
   };
 
   const confirmDiscardDraft = async () => {
+    setIsLoading(true); // Set loading to true when starting the discard process
     try {
       await api.delete('/workouts/draft');
       setHasDraft(false);
@@ -74,6 +77,8 @@ const WorkoutDashboard = () => {
     } catch (error) {
       console.error('Error discarding draft workout:', error);
       setError('Failed to discard draft workout. Please try again.');
+    } finally {
+      setIsLoading(false); // Set loading back to false when the process is complete
     }
   };
 
@@ -115,6 +120,7 @@ const WorkoutDashboard = () => {
         onConfirm={confirmDiscardDraft} 
         title="Confirm Discard Draft"
         message="Are you sure you want to discard the draft workout?"
+        isLoading={isLoading} // Pass the loading state to the modal
       />
     </div>
   );
