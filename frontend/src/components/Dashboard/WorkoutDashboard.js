@@ -13,10 +13,12 @@ const WorkoutDashboard = () => {
   const navigate = useNavigate();
   const [hasDraft, setHasDraft] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
-  const [isLoading, setIsLoading] = useState(false); // Add this state
+  const [isLoading, setIsLoading] = useState(true); // Add this state
+  const [isDraftLoading, setIsDraftLoading] = useState(true);
 
   useEffect(() => {
     const fetchWorkoutHistory = async () => {
+      setIsLoading(true);
       try {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -37,20 +39,27 @@ const WorkoutDashboard = () => {
           localStorage.removeItem('token');
           navigate('/login');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchWorkoutHistory();
   }, [navigate]);
 
-  const checkDraft = async () => {
-    try {
-      const response = await api.get('/workouts/draft');
-      setHasDraft(!!response.data);
-    } catch (error) {
-      console.error('Error checking for draft:', error);
-    }
-  };
-  checkDraft();
+  useEffect(() => {
+    const checkDraft = async () => {
+      setIsDraftLoading(true);
+      try {
+        const response = await api.get('/workouts/draft');
+        setHasDraft(!!response.data);
+      } catch (error) {
+        console.error('Error checking draft:', error);
+      } finally {
+        setIsDraftLoading(false);
+      }
+    };
+    checkDraft();
+  }, []);
 
   const handleStartWorkout = () => {
     navigate('/new-workout');
@@ -94,7 +103,9 @@ const WorkoutDashboard = () => {
     <div className="workout-dashboard">
       <div className="dashboard-header">
         <h2>Workout Dashboard</h2>
-        {hasDraft ? (
+        {isDraftLoading ? (
+          <div className="loading-spinner"><FaSpinner className="spinner" /></div>
+        ) : hasDraft ? (
           <div className="workout-actions">
             <button onClick={handleContinueWorkout} className="start-workout-button continue-workout">Continue Workout</button>
             <button onClick={handleDiscardDraft} className="discard-draft-button">Discard Draft</button>
@@ -105,7 +116,9 @@ const WorkoutDashboard = () => {
       </div>
       <div className="workout-history">
         <h3>Recent Workouts</h3>
-        {workoutHistory.length > 0 ? (
+        {isLoading ? (
+          <div className="loading-spinner"><FaSpinner className="spinner" /></div>
+        ) : workoutHistory.length > 0 ? (
           <WorkoutHistoryList workouts={workoutHistory.map(workout => ({
             ...workout,
             isDraft: workout.isDraft || false

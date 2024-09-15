@@ -1,22 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosConfig';
 import '../common.css';
 import './WorkoutHistory.css';
 import WorkoutHistoryList from '../Common/WorkoutHistoryList';
+import { FaSpinner } from 'react-icons/fa';
 
 const WorkoutHistory = () => {
   const [workoutHistory, setWorkoutHistory] = useState([]);
   const [filter, setFilter] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
+      setIsLoading(true);
       try {
-        const response = await axios.get('/api/workouts/history', {
+        const response = await api.get('/workouts/history', {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setWorkoutHistory(response.data);
       } catch (error) {
         console.error('Error fetching workout history:', error);
+        setError('Failed to fetch workout history. Please try again.');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchHistory();
@@ -32,6 +39,10 @@ const WorkoutHistory = () => {
     return dateMatch || exerciseMatch;
   });
 
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
+
   return (
     <div className="workout-history">
       <h2>Workout History</h2>
@@ -42,10 +53,16 @@ const WorkoutHistory = () => {
         onChange={handleFilterChange}
         className="form-input filter-input"
       />
-      <WorkoutHistoryList workouts={filteredWorkouts.map(workout => ({
-        ...workout,
-        isDraft: workout.isDraft || false // Ensure isDraft is set
-      }))} />
+      {isLoading ? (
+        <div className="loading-spinner"><FaSpinner className="spinner" /></div>
+      ) : workoutHistory.length > 0 ? (
+        <WorkoutHistoryList workouts={filteredWorkouts.map(workout => ({
+          ...workout,
+          isDraft: workout.isDraft || false
+        }))} />
+      ) : (
+        <p>No workout history available.</p>
+      )}
     </div>
   );
 };

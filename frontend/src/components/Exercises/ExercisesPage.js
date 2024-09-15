@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../../api/axiosConfig';
 import '../common.css';
 import './ExercisesPage.css';
-import ConfirmationModal from '../Common/ConfirmationModal'; // Import the ConfirmationModal
+import { FaSpinner } from 'react-icons/fa';
+import ConfirmationModal from '../Common/ConfirmationModal'; // Add this import
 
 const ExercisesPage = () => {
   const [exercises, setExercises] = useState([]);
@@ -11,23 +12,27 @@ const ExercisesPage = () => {
   const [editingExercise, setEditingExercise] = useState(null);
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAdminLoading, setIsAdminLoading] = useState(true);
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [exerciseToDelete, setExerciseToDelete] = useState(null);
 
   const fetchExercises = useCallback(async () => {
+    setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No token found');
       }
-      const response = await axios.get('/api/exercises', {
+      const response = await api.get('/exercises', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setExercises(response.data);
 
       // Check if user is admin
-      const userResponse = await axios.get('/api/users/me', {
+      setIsAdminLoading(true);
+      const userResponse = await api.get('/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsAdmin(userResponse.data.isAdmin);
@@ -38,6 +43,9 @@ const ExercisesPage = () => {
         localStorage.removeItem('token');
         navigate('/login');
       }
+    } finally {
+      setIsLoading(false);
+      setIsAdminLoading(false);
     }
   }, [navigate]);
 
@@ -69,11 +77,11 @@ const ExercisesPage = () => {
       }
       
       if (editingExercise) {
-        await axios.put(`/api/exercises/${editingExercise._id}`, exerciseData, {
+        await api.put(`/api/exercises/${editingExercise._id}`, exerciseData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await axios.post('/api/exercises', exerciseData, {
+        await api.post('/api/exercises', exerciseData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -106,7 +114,7 @@ const ExercisesPage = () => {
         if (!token) {
           throw new Error('No token found');
         }
-        await axios.delete(`/api/exercises/${exerciseToDelete._id}`, {
+        await api.delete(`/api/exercises/${exerciseToDelete._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchExercises();
@@ -131,9 +139,33 @@ const ExercisesPage = () => {
   return (
     <div className="exercises-page">
       <h2>Exercises</h2>
-      {isAdmin && (
-        <div>
-          <h3>{editingExercise ? 'Edit Exercise' : 'Add New Exercise'}</h3>
+      {isLoading ? (
+        <div className="loading-spinner"><FaSpinner className="spinner" /></div>
+      ) : (
+        <div className="exercise-list">
+          {exercises.map((exercise) => (
+            <div key={exercise._id} className="exercise-item">
+              <h4>{exercise.name}</h4>
+              {exercise.targetedMuscles && exercise.targetedMuscles.length > 0 && (
+                <p>Targeted Muscles: {exercise.targetedMuscles.join(', ')}</p>
+              )}
+              {exercise.imageURL && <p>Image URL: {exercise.imageURL}</p>}
+              {exercise.videoURL && <p>Video URL: {exercise.videoURL}</p>}
+              {isAdmin && (
+                <div className="exercise-actions">
+                  <button onClick={() => handleEdit(exercise)}>Edit</button>
+                  <button onClick={() => handleDelete(exercise)}>Delete</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {isAdminLoading ? (
+        <div className="loading-spinner"><FaSpinner className="spinner" /></div>
+      ) : isAdmin && (
+        <div className="admin-controls">
+          <h3>Add New Exercise</h3>
           <form onSubmit={handleSubmit} className="exercise-form">
             <input
               type="text"
@@ -171,25 +203,6 @@ const ExercisesPage = () => {
           </form>
         </div>
       )}
-      <h3>Exercise List</h3>
-      <div className="exercise-list">
-        {exercises.map((exercise) => (
-          <div key={exercise._id} className="exercise-item">
-            <h4>{exercise.name}</h4>
-            {exercise.targetedMuscles && exercise.targetedMuscles.length > 0 && (
-              <p>Targeted Muscles: {exercise.targetedMuscles.join(', ')}</p>
-            )}
-            {exercise.imageURL && <p>Image URL: {exercise.imageURL}</p>}
-            {exercise.videoURL && <p>Video URL: {exercise.videoURL}</p>}
-            {isAdmin && (
-              <div className="exercise-actions">
-                <button onClick={() => handleEdit(exercise)}>Edit</button>
-                <button onClick={() => handleDelete(exercise)}>Delete</button>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={closeDeleteModal}

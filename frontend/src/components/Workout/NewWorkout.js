@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';  // Add this line
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import '../common.css';
 import './NewWorkout.css';
-import { FaMinus, FaPlus, FaCheck, FaTimes } from 'react-icons/fa'; // Add this import
+import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 
 const NewWorkout = () => {
   const [exercises, setExercises] = useState([]);
