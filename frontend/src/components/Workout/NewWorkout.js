@@ -19,6 +19,7 @@ const NewWorkout = () => {
   const [suggestedExercises, setSuggestedExercises] = useState([]);
 
   const handleWeightChange = (index, amount) => {
+    if (sets[index].completed) return; // Don't change if set is completed
     const updatedSets = sets.map((set, idx) => {
       if (idx === index) {
         // Update the current set
@@ -35,6 +36,7 @@ const NewWorkout = () => {
   };
 
   const handleRepsChange = (index, amount) => {
+    if (sets[index].completed) return; // Don't change if set is completed
     const updatedSets = sets.map((set, idx) => {
       if (idx === index) {
         // Update the current set
@@ -205,6 +207,7 @@ const NewWorkout = () => {
   };
 
   const handleSetChange = (index, field, value) => {
+    if (sets[index].completed) return; // Don't change if set is completed
     const updatedSets = sets.map((set, idx) => 
       idx === index ? { ...set, [field]: value } : set
     );
@@ -301,6 +304,11 @@ const NewWorkout = () => {
     }
   };
 
+  const handleRemoveSet = (index) => {
+    const updatedSets = sets.filter((_, idx) => idx !== index);
+    setSets(updatedSets);
+  };
+
   if (error) {
     return <div className="error-message">{error}</div>;
   }
@@ -327,6 +335,7 @@ const NewWorkout = () => {
                   <th>Reps</th>
                   <th>Weight (kg)</th>
                   <th>Completed</th>
+                  <th>Remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -335,25 +344,47 @@ const NewWorkout = () => {
                     <td>{index + 1}</td>
                     <td>
                       <div className="reps-input-group">
-                        <button onClick={() => handleRepsChange(index, -1)}> -1 </button>
+                        <button 
+                          onClick={() => handleRepsChange(index, -1)} 
+                          disabled={set.completed}
+                        > 
+                          -1 
+                        </button>
                         <input
                           type="number"
                           value={set.reps}
                           onChange={(e) => handleSetChange(index, 'reps', parseInt(e.target.value))}
+                          disabled={set.completed}
                         />
-                        <button onClick={() => handleRepsChange(index, 1)}> +1 </button>
+                        <button 
+                          onClick={() => handleRepsChange(index, 1)}
+                          disabled={set.completed}
+                        > 
+                          +1 
+                        </button>
                       </div>
                     </td>
                     <td>
                       <div className="weight-input-group">
-                        <button onClick={() => handleWeightChange(index, -2.5)}> -2.5 </button>
+                        <button 
+                          onClick={() => handleWeightChange(index, -2.5)}
+                          disabled={set.completed}
+                        > 
+                          -2.5 
+                        </button>
                         <input
                           type="number"
                           step="0.1"
                           value={set.weight}
                           onChange={(e) => handleSetChange(index, 'weight', parseFloat(e.target.value))}
+                          disabled={set.completed}
                         />
-                        <button onClick={() => handleWeightChange(index, 2.5)}> +2.5 </button>
+                        <button 
+                          onClick={() => handleWeightChange(index, 2.5)}
+                          disabled={set.completed}
+                        > 
+                          +2.5 
+                        </button>
                       </div>
                     </td>
                     <td>
@@ -364,11 +395,26 @@ const NewWorkout = () => {
                       >
                       </button>
                     </td>
+                    <td>
+                      {!set.completed && (
+                        <button 
+                          onClick={() => handleRemoveSet(index)}
+                          className="remove-set-button"
+                          aria-label="Remove set"
+                        >
+                          -
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
+                <tr>
+                  <td colSpan="5">
+                    <button onClick={handleAddSet} className="add-set-button">+</button>
+                  </td>
+                </tr>
               </tbody>
             </table>
-            <button onClick={handleAddSet} className="add-set-button">Add Set</button>
           </div>
           <button onClick={handleCompleteExercise} className="complete-exercise-button">Complete Exercise</button>
         </div>
