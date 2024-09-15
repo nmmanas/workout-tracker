@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';  // Add this line
 import api from '../../api/axiosConfig';
 import '../common.css';
 import './NewWorkout.css';
+import { FaMinus, FaPlus, FaCheck, FaTimes } from 'react-icons/fa'; // Add this import
 
 const NewWorkout = () => {
   const [exercises, setExercises] = useState([]);
@@ -200,9 +201,23 @@ const NewWorkout = () => {
   };
 
   const toggleSetCompletion = (index) => {
-    const updatedSets = sets.map((set, idx) => 
-      idx === index ? { ...set, completed: !set.completed } : set
-    );
+    const updatedSets = [...sets];
+    const currentSet = updatedSets[index];
+
+    if (!currentSet.completed) {
+      // Completing a set
+      const allPreviousCompleted = updatedSets.slice(0, index).every(set => set.completed);
+      if (allPreviousCompleted) {
+        currentSet.completed = true;
+      }
+    } else {
+      // Incompleting a set
+      const allSubsequentIncompleted = updatedSets.slice(index + 1).every(set => !set.completed);
+      if (allSubsequentIncompleted) {
+        currentSet.completed = false;
+      }
+    }
+
     setSets(updatedSets);
   };
 
@@ -328,50 +343,31 @@ const NewWorkout = () => {
         <div className="current-exercise">
           <h3>{currentExercise.name}</h3>
           <div className="set-inputs">
-            <table>
-              <thead>
-                <tr>
-                  <th>Set #</th>
-                  <th>Reps</th>
-                  <th>Weight (kg)</th>
-                  <th>Completed</th>
-                  <th>Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sets.map((set, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>
-                      <div className="reps-input-group">
-                        <button 
-                          onClick={() => handleRepsChange(index, -1)} 
-                          disabled={set.completed}
-                        > 
-                          -1 
-                        </button>
+            {sets.map((set, index) => {
+              const canComplete = sets.slice(0, index).every(s => s.completed);
+              const canIncomplete = sets.slice(index + 1).every(s => !s.completed);
+              
+              return (
+                <div key={index} className="set-row">
+                  <div className="set-number">{index + 1}</div>
+                  <div className="set-inputs-group">
+                    <div className="input-group">
+                      <label>Reps</label>
+                      <div className="input-controls">
+                        <button onClick={() => handleRepsChange(index, -1)} disabled={set.completed}><FaMinus /></button>
                         <input
                           type="number"
                           value={set.reps}
                           onChange={(e) => handleSetChange(index, 'reps', parseInt(e.target.value))}
                           disabled={set.completed}
                         />
-                        <button 
-                          onClick={() => handleRepsChange(index, 1)}
-                          disabled={set.completed}
-                        > 
-                          +1 
-                        </button>
+                        <button onClick={() => handleRepsChange(index, 1)} disabled={set.completed}><FaPlus /></button>
                       </div>
-                    </td>
-                    <td>
-                      <div className="weight-input-group">
-                        <button 
-                          onClick={() => handleWeightChange(index, -2.5)}
-                          disabled={set.completed}
-                        > 
-                          -2.5 
-                        </button>
+                    </div>
+                    <div className="input-group">
+                      <label>Weight (kg)</label>
+                      <div className="input-controls">
+                        <button onClick={() => handleWeightChange(index, -2.5)} disabled={set.completed}><FaMinus /></button>
                         <input
                           type="number"
                           step="0.1"
@@ -379,42 +375,39 @@ const NewWorkout = () => {
                           onChange={(e) => handleSetChange(index, 'weight', parseFloat(e.target.value))}
                           disabled={set.completed}
                         />
-                        <button 
-                          onClick={() => handleWeightChange(index, 2.5)}
-                          disabled={set.completed}
-                        > 
-                          +2.5 
-                        </button>
+                        <button onClick={() => handleWeightChange(index, 2.5)} disabled={set.completed}><FaPlus /></button>
                       </div>
-                    </td>
-                    <td>
-                      <button 
-                        onClick={() => toggleSetCompletion(index)}
-                        className={`complete-set-button ${set.completed ? 'complete' : 'incomplete'}`}
-                        aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
-                      >
-                      </button>
-                    </td>
-                    <td>
-                      {!set.completed && (
-                        <button 
-                          onClick={() => handleRemoveSet(index)}
-                          className="remove-set-button"
-                          aria-label="Remove set"
-                        >
-                          -
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                <tr>
-                  <td colSpan="5">
-                    <button onClick={handleAddSet} className="add-set-button">+</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                  <div className="set-actions">
+                    <button 
+                      onClick={() => toggleSetCompletion(index)}
+                      className={`complete-set-button 
+                        ${set.completed ? 'complete' : 'incomplete'}
+                        ${!set.completed && !canComplete ? 'disabled' : ''}
+                        ${set.completed && !canIncomplete ? 'disabled' : ''}`}
+                      aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                      disabled={(!set.completed && !canComplete) || (set.completed && !canIncomplete)}
+                    >
+                      {set.completed ? '✓' : '○'}
+                    </button>
+                    <button 
+                      onClick={() => handleRemoveSet(index)}
+                      className={`remove-set-button ${set.completed ? 'disabled' : ''}`}
+                      aria-label="Remove set"
+                      disabled={set.completed}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="add-set-row">
+              <button onClick={handleAddSet} className="add-set-button">
+                <FaPlus />
+              </button>
+            </div>
           </div>
           <button onClick={handleCompleteExercise} className="complete-exercise-button">Complete Exercise</button>
         </div>
