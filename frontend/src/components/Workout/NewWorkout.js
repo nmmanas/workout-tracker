@@ -18,18 +18,36 @@ const NewWorkout = () => {
   const [lastAddedSet, setLastAddedSet] = useState(null);
   const [suggestedExercises, setSuggestedExercises] = useState([]);
 
-  const handleWeightChange = (amount) => {
-    setWeight(prevWeight => {
-      const newWeight = Math.max(0, parseFloat(prevWeight || 0) + amount);
-      return newWeight.toFixed(1); // Ensures we always have one decimal place
+  const handleWeightChange = (index, amount) => {
+    const updatedSets = sets.map((set, idx) => {
+      if (idx === index) {
+        // Update the current set
+        const newWeight = Math.max(0, parseFloat(set.weight) + amount);
+        return { ...set, weight: newWeight };
+      } else if (idx > index) {
+        // Update all subsequent sets to match the new weight of the changed set
+        return { ...set, weight: Math.max(0, parseFloat(sets[index].weight) + amount) };
+      }
+      // Leave previous sets unchanged
+      return set;
     });
+    setSets(updatedSets);
   };
 
-  const handleRepsChange = (amount) => {
-    setReps(prevReps => {
-      const newReps = Math.max(0, parseInt(prevReps || 0) + amount);
-      return newReps.toString();
+  const handleRepsChange = (index, amount) => {
+    const updatedSets = sets.map((set, idx) => {
+      if (idx === index) {
+        // Update the current set
+        const newReps = Math.max(0, parseInt(set.reps) + amount);
+        return { ...set, reps: newReps };
+      } else if (idx > index) {
+        // Update all subsequent sets to match the new reps of the changed set
+        return { ...set, reps: Math.max(0, parseInt(sets[index].reps) + amount) };
+      }
+      // Leave previous sets unchanged
+      return set;
     });
+    setSets(updatedSets);
   };
 
   useEffect(() => {
@@ -137,23 +155,33 @@ const NewWorkout = () => {
         console.log('Last exercise data response:', response.data);
         setLastExerciseData(response.data);
         
-        // Set reps and weight based on last exercise data
         const newReps = response.data.reps !== null ? response.data.reps.toString() : '10';
         const newWeight = response.data.weight !== null ? response.data.weight.toString() : '0';
         
-        console.log('Setting new reps:', newReps);
-        console.log('Setting new weight:', newWeight);
-        
         setReps(newReps);
         setWeight(newWeight);
-        setLastAddedSet(null); // Reset lastAddedSet when selecting a new exercise
+        setLastAddedSet(null);
+
+        // Automatically add 3 default sets
+        const defaultSets = Array.from({ length: 3 }, () => ({
+          reps: parseInt(newReps),
+          weight: parseFloat(newWeight),
+          completed: false
+        }));
+        setSets(defaultSets);
       } catch (error) {
         console.error('Error fetching last exercise data:', error);
-        // If there's no previous data, set default values
-        console.log('Setting default values');
         setLastExerciseData({ reps: '10', weight: '0' });
         setReps('10');
         setWeight('0');
+
+        // Add 3 default sets with default values
+        const defaultSets = Array.from({ length: 3 }, () => ({
+          reps: 10,
+          weight: 0,
+          completed: false
+        }));
+        setSets(defaultSets);
       }
     } else {
       setCurrentExercise(null);
@@ -164,20 +192,23 @@ const NewWorkout = () => {
   };
 
   const handleAddSet = () => {
-    if (reps && weight) {
-      const newSet = { reps: parseInt(reps), weight: parseFloat(weight) };
-      setSets([...sets, newSet]);
-      setLastAddedSet(newSet);
-      
-      // Autofill with the set just added
-      setReps(newSet.reps.toString());
-      setWeight(newSet.weight.toString());
-      
-      // Remove the following lines:
-      // if (repsInputRef.current) {
-      //   repsInputRef.current.focus();
-      // }
-    }
+    const newSet = { reps: parseInt(reps), weight: parseFloat(weight), completed: false };
+    setSets([...sets, newSet]);
+    setLastAddedSet(newSet);
+  };
+
+  const toggleSetCompletion = (index) => {
+    const updatedSets = sets.map((set, idx) => 
+      idx === index ? { ...set, completed: !set.completed } : set
+    );
+    setSets(updatedSets);
+  };
+
+  const handleSetChange = (index, field, value) => {
+    const updatedSets = sets.map((set, idx) => 
+      idx === index ? { ...set, [field]: value } : set
+    );
+    setSets(updatedSets);
   };
 
   useEffect(() => {
@@ -198,7 +229,11 @@ const NewWorkout = () => {
 
   const handleCompleteExercise = () => {
     if (sets.length > 0) {
-      setCompletedExercises([...completedExercises, { ...currentExercise, sets }]);
+      // Filter to save only completed sets
+      const completedSets = sets.filter(set => set.completed);
+      if (completedSets.length > 0) {
+        setCompletedExercises([...completedExercises, { ...currentExercise, sets: completedSets }]);
+      }
       setCurrentExercise(null);
       setSelectedExercise('');
       setSets([]);
@@ -232,11 +267,27 @@ const NewWorkout = () => {
       console.log('Setting reps to:', newReps, 'and weight to:', newWeight);
       setReps(newReps);
       setWeight(newWeight);
+
+      // Add 3 default sets
+      const defaultSets = Array.from({ length: 3 }, () => ({
+        reps: parseInt(newReps),
+        weight: parseFloat(newWeight),
+        completed: false
+      }));
+      setSets(defaultSets);
     } catch (error) {
       console.error('Error fetching last exercise data:', error);
       setLastExerciseData({ reps: '10', weight: '0' });
       setReps('10');
       setWeight('0');
+
+      // Add 3 default sets with default values
+      const defaultSets = Array.from({ length: 3 }, () => ({
+        reps: 10,
+        weight: 0,
+        completed: false
+      }));
+      setSets(defaultSets);
     }
   };
 
@@ -269,38 +320,56 @@ const NewWorkout = () => {
         <div className="current-exercise">
           <h3>{currentExercise.name}</h3>
           <div className="set-inputs">
-            <div className="reps-input-group">
-              <button onClick={() => handleRepsChange(-1)} className="reps-adjust-button decrease">-1</button>
-              <input
-                type="number"
-                value={reps}
-                onChange={(e) => setReps(e.target.value)}
-                placeholder="Reps"
-                className="reps-input"
-              />
-              <button onClick={() => handleRepsChange(1)} className="reps-adjust-button increase">+1</button>
-            </div>
-            <div className="weight-input-group">
-              <button onClick={() => handleWeightChange(-2.5)} className="weight-adjust-button decrease">-2.5</button>
-              <input
-                type="number"
-                value={weight}
-                onChange={(e) => setWeight(e.target.value)}
-                placeholder="Weight (kg)"
-                className="weight-input"
-              />
-              <button onClick={() => handleWeightChange(2.5)} className="weight-adjust-button increase">+2.5</button>
-            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Set #</th>
+                  <th>Reps</th>
+                  <th>Weight (kg)</th>
+                  <th>Completed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sets.map((set, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>
+                      <div className="reps-input-group">
+                        <button onClick={() => handleRepsChange(index, -1)}> -1 </button>
+                        <input
+                          type="number"
+                          value={set.reps}
+                          onChange={(e) => handleSetChange(index, 'reps', parseInt(e.target.value))}
+                        />
+                        <button onClick={() => handleRepsChange(index, 1)}> +1 </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="weight-input-group">
+                        <button onClick={() => handleWeightChange(index, -2.5)}> -2.5 </button>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={set.weight}
+                          onChange={(e) => handleSetChange(index, 'weight', parseFloat(e.target.value))}
+                        />
+                        <button onClick={() => handleWeightChange(index, 2.5)}> +2.5 </button>
+                      </div>
+                    </td>
+                    <td>
+                      <button 
+                        onClick={() => toggleSetCompletion(index)}
+                        className={`complete-set-button ${set.completed ? 'complete' : 'incomplete'}`}
+                        aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                      >
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             <button onClick={handleAddSet} className="add-set-button">Add Set</button>
           </div>
-          {sets.length > 0 && (
-            <div className="sets-list">
-              <h4>Sets:</h4>
-              {sets.map((set, index) => (
-                <p key={index}>Set {index + 1}: {set.reps} reps @ {set.weight} kg</p>
-              ))}
-            </div>
-          )}
           <button onClick={handleCompleteExercise} className="complete-exercise-button">Complete Exercise</button>
         </div>
       )}

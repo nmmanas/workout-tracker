@@ -42,7 +42,8 @@
 .reps-input-group,
 .weight-input-group {
   display: flex;
-  width: 100%;
+  align-items: center;
+  gap: 0.5rem; /* Space between buttons and input */
 }
 
 .reps-input-group {
@@ -203,4 +204,230 @@
   .add-set-button {
     margin-top: 0;
   }
+}
+
+.reps-input-group button,
+.weight-input-group button {
+  padding: 0.5rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.reps-input-group button:first-child,
+.weight-input-group button:first-child {
+  background-color: #dc3545; /* Red for decrement buttons */
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.reps-input-group button:last-child,
+.weight-input-group button:last-child {
+  background-color: #28a745; /* Green for increment buttons */
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.reps-input-group button:first-child:hover,
+.weight-input-group button:first-child:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+.reps-input-group button:last-child:hover,
+.weight-input-group button:last-child:hover {
+  background-color: #218838; /* Darker green on hover */
+}
+
+.reps-input-group input,
+.weight-input-group input {
+  text-align: center;
+  border: 1px solid #ced4da;
+  padding: 0.5rem;
+  width: 60px;
+}
+
+.exercise-select {
+  margin-bottom: 1rem;
+}
+
+.exercise-select select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.weight-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.weight-adjust-button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.weight-adjust-button.increase {
+  background-color: #28a745;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.weight-adjust-button.increase:hover {
+  background-color: #218838;
+}
+
+.weight-adjust-button.decrease {
+  background-color: #6c757d;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.weight-adjust-button.decrease:hover {
+  background-color: #5a6268;
+}
+
+.weight-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .set-inputs {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .add-set-button {
+    margin-top: 0;
+  }
+}
+
+.reps-input-group button,
+.weight-input-group button {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.complete-set-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.complete-set-button::before {
+  content: '\2713'; /* Unicode checkmark */
+  display: inline-block;
+}
+
+.complete-set-button.incomplete {
+  color: #ced4da; /* Grey color for incomplete */
+}
+
+.complete-set-button.complete {
+  color: #28a745; /* Green color for complete */
+  background-color: rgba(40, 167, 69, 0.1); /* Light green background */
+}
+
+.complete-set-button:hover {
+  transform: scale(1.1);
+}
+
+.reps-input-group input,
+.weight-input-group input {
+  text-align: center;
+  border: 1px solid #ced4da;
+  padding: 0.5rem;
+  width: 60px;
+}
+
+.exercise-select {
+  margin-bottom: 1rem;
+}
+
+.exercise-select select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.weight-input-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.weight-adjust-button {
+  padding: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.weight-adjust-button.increase {
+  background-color: #28a745;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.weight-adjust-button.increase:hover {
+  background-color: #218838;
+}
+
+.weight-adjust-button.decrease {
+  background-color: #6c757d;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.weight-adjust-button.decrease:hover {
+  background-color: #5a6268;
+}
+
+.weight-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-right: none;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .set-inputs {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .add-set-button {
+    margin-top: 0;
+  }
+}
+
+.reps-input-group button,
+.weight-input-group button {
+  padding: 0.5rem;
+  cursor: pointer;
 }
