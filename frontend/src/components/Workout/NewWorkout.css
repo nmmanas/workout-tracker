@@ -173,28 +173,26 @@
 
 @media (max-width: 480px) {
   .set-row {
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .set-number {
-    width: 100%;
     text-align: center;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.5rem;
   }
 
   .set-inputs-group {
     flex-direction: row;
-    justify-content: space-around;
-    width: 100%;
+    justify-content: space-between;
   }
 
   .input-group {
-    width: 45%; /* Adjust as needed */
+    width: 48%;
   }
 
   .input-group label {
-    font-size: 0.7rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
   }
 
   .input-controls {
@@ -207,32 +205,22 @@
     font-size: 0.9rem;
   }
 
-  .set-actions {
-    width: 100%;
-    justify-content: center;
-    margin-top: 0.5rem;
+  .set-actions-mobile {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .input-group input,
-  .input-group button {
-    padding: 0.5rem;
+  .set-actions {
+    margin-bottom: 0.5rem;
   }
 
   .complete-set-button,
-  .remove-set-button {
-    font-size: 1.5rem;
-    padding: 0.75rem;
-    width: 50px;
-    height: 50px;
-  }
-
-  .input-controls {
-    justify-content: center;
-  }
-
-  .input-controls input,
-  .input-controls button {
+  .remove-set-button,
+  .difficulty-button {
+    font-size: 1.2rem;
     padding: 0.5rem;
+    width: 40px;
+    height: 40px;
   }
 }
 
@@ -253,7 +241,7 @@
 .set-difficulty {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  justify-content: center;
 }
 
 .difficulty-button {
@@ -296,4 +284,11 @@
 .difficulty-indicator {
   margin-left: 0.5rem;
   font-size: 1.2rem;
+}
+
+.set-actions-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 }

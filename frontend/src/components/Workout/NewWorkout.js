@@ -401,39 +401,41 @@ const NewWorkout = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="set-difficulty">
-                    {Object.entries(difficultyEmojis).map(([difficulty, emoji]) => (
+                  <div className="set-actions-mobile">
+                    <div className="set-actions">
                       <button 
-                        key={difficulty}
-                        onClick={() => handleSetDifficulty(index, difficulty)}
-                        className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
-                        aria-label={difficulty.replace('_', ' ')}
-                        disabled={!set.completed}
+                        onClick={() => toggleSetCompletion(index)}
+                        className={`complete-set-button 
+                          ${set.completed ? 'complete' : 'incomplete'}
+                          ${!set.completed && !canComplete ? 'disabled' : ''}
+                          ${set.completed && !canIncomplete ? 'disabled' : ''}`}
+                        aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                        disabled={(!set.completed && !canComplete) || (set.completed && !canIncomplete)}
                       >
-                        {emoji}
+                        {set.completed ? '✓' : '○'}
                       </button>
-                    ))}
-                  </div>
-                  <div className="set-actions">
-                    <button 
-                      onClick={() => toggleSetCompletion(index)}
-                      className={`complete-set-button 
-                        ${set.completed ? 'complete' : 'incomplete'}
-                        ${!set.completed && !canComplete ? 'disabled' : ''}
-                        ${set.completed && !canIncomplete ? 'disabled' : ''}`}
-                      aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
-                      disabled={(!set.completed && !canComplete) || (set.completed && !canIncomplete)}
-                    >
-                      {set.completed ? '✓' : '○'}
-                    </button>
-                    <button 
-                      onClick={() => handleRemoveSet(index)}
-                      className={`remove-set-button ${set.completed ? 'disabled' : ''}`}
-                      aria-label="Remove set"
-                      disabled={set.completed}
-                    >
-                      <FaTimes />
-                    </button>
+                      <button 
+                        onClick={() => handleRemoveSet(index)}
+                        className={`remove-set-button ${set.completed ? 'disabled' : ''}`}
+                        aria-label="Remove set"
+                        disabled={set.completed}
+                      >
+                        <FaTimes />
+                      </button>
+                    </div>
+                    <div className="set-difficulty">
+                      {Object.entries(difficultyEmojis).map(([difficulty, emoji]) => (
+                        <button 
+                          key={difficulty}
+                          onClick={() => handleSetDifficulty(index, difficulty)}
+                          className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
+                          aria-label={difficulty.replace('_', ' ')}
+                          disabled={!set.completed}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               );
