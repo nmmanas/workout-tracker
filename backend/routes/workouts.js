@@ -47,7 +47,8 @@ router.post('/', auth, async (req, res) => {
       const lastSet = exercise.sets[exercise.sets.length - 1];
       user.lastExerciseData.set(exercise.name, {
         reps: lastSet.reps,
-        weight: lastSet.weight
+        weight: lastSet.weight,
+        difficulty: lastSet.difficulty // Add this line
       });
 
       // Update exercise order history

@@ -4,6 +4,12 @@ import '../common.css';
 const WorkoutHistoryList = ({ workouts, limit }) => {
   const displayWorkouts = limit ? workouts.slice(0, limit) : workouts;
 
+  const difficultyEmojis = {
+    too_easy: '😊',
+    normal: '😐',
+    too_hard: '😓'
+  };
+
   return (
     <div className="history-list">
       {displayWorkouts.map((workout, index) => (
@@ -14,7 +20,14 @@ const WorkoutHistoryList = ({ workouts, limit }) => {
             <div key={idx} className="exercise-entry">
               <strong>{exercise.name}</strong>
               {exercise.sets.map((set, sIdx) => (
-                <p key={sIdx}>Set {set.setNumber}: {set.reps} reps @ {set.weight} kg</p>
+                <p key={sIdx}>
+                  Set {sIdx + 1}: {set.reps} reps @ {set.weight} kg
+                  {set.difficulty && (
+                    <span className="difficulty-indicator" title={set.difficulty}>
+                      {difficultyEmojis[set.difficulty] || set.difficulty}
+                    </span>
+                  )}
+                </p>
               ))}
             </div>
           ))}

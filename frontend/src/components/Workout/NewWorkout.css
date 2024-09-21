@@ -249,3 +249,51 @@
 .complete-set-button.complete.disabled {
   color: #a3cfbb; /* Lighter green for disabled complete buttons */
 }
+
+.set-difficulty {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.difficulty-button {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ced4da;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.5rem;
+  line-height: 1;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.difficulty-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.difficulty-button.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+  transform: scale(1.1);
+}
+
+.difficulty-button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.difficulty-button.active:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.difficulty-indicator {
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+}

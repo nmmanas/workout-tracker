@@ -165,11 +165,12 @@ const NewWorkout = () => {
         setWeight(newWeight);
         setLastAddedSet(null);
 
-        // Automatically add 3 default sets
+        // Automatically add 3 default sets with reset difficulty
         const defaultSets = Array.from({ length: 3 }, () => ({
           reps: parseInt(newReps),
           weight: parseFloat(newWeight),
-          completed: false
+          completed: false,
+          difficulty: 'normal' // Reset difficulty to 'normal'
         }));
         setSets(defaultSets);
       } catch (error) {
@@ -178,11 +179,12 @@ const NewWorkout = () => {
         setReps('10');
         setWeight('0');
 
-        // Add 3 default sets with default values
+        // Add 3 default sets with default values and reset difficulty
         const defaultSets = Array.from({ length: 3 }, () => ({
           reps: 10,
           weight: 0,
-          completed: false
+          completed: false,
+          difficulty: 'normal' // Reset difficulty to 'normal'
         }));
         setSets(defaultSets);
       }
@@ -195,7 +197,12 @@ const NewWorkout = () => {
   };
 
   const handleAddSet = () => {
-    const newSet = { reps: parseInt(reps), weight: parseFloat(weight), completed: false };
+    const newSet = { 
+      reps: parseInt(reps), 
+      weight: parseFloat(weight), 
+      completed: false,
+      difficulty: 'normal' // Ensure new sets have 'normal' difficulty
+    };
     setSets([...sets, newSet]);
     setLastAddedSet(newSet);
   };
@@ -225,6 +232,13 @@ const NewWorkout = () => {
     if (sets[index].completed) return; // Don't change if set is completed
     const updatedSets = sets.map((set, idx) => 
       idx === index ? { ...set, [field]: value } : set
+    );
+    setSets(updatedSets);
+  };
+
+  const handleSetDifficulty = (index, difficulty) => {
+    const updatedSets = sets.map((set, idx) => 
+      idx === index ? { ...set, difficulty } : set
     );
     setSets(updatedSets);
   };
@@ -290,7 +304,8 @@ const NewWorkout = () => {
       const defaultSets = Array.from({ length: 3 }, () => ({
         reps: parseInt(newReps),
         weight: parseFloat(newWeight),
-        completed: false
+        completed: false,
+        difficulty: 'normal' // Default difficulty
       }));
       setSets(defaultSets);
     } catch (error) {
@@ -303,7 +318,8 @@ const NewWorkout = () => {
       const defaultSets = Array.from({ length: 3 }, () => ({
         reps: 10,
         weight: 0,
-        completed: false
+        completed: false,
+        difficulty: 'normal' // Default difficulty
       }));
       setSets(defaultSets);
     }
@@ -322,6 +338,12 @@ const NewWorkout = () => {
   const handleRemoveSet = (index) => {
     const updatedSets = sets.filter((_, idx) => idx !== index);
     setSets(updatedSets);
+  };
+
+  const difficultyEmojis = {
+    too_easy: '😊',
+    normal: '😐',
+    too_hard: '😓'
   };
 
   if (error) {
@@ -379,6 +401,19 @@ const NewWorkout = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="set-difficulty">
+                    {Object.entries(difficultyEmojis).map(([difficulty, emoji]) => (
+                      <button 
+                        key={difficulty}
+                        onClick={() => handleSetDifficulty(index, difficulty)}
+                        className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
+                        aria-label={difficulty.replace('_', ' ')}
+                        disabled={!set.completed}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
                   <div className="set-actions">
                     <button 
                       onClick={() => toggleSetCompletion(index)}
@@ -418,7 +453,12 @@ const NewWorkout = () => {
           <div key={index} className="completed-exercise-item">
             <h4>{exercise.name}</h4>
             {exercise.sets.map((set, setIndex) => (
-              <p key={setIndex}>Set {setIndex + 1}: {set.reps} reps @ {set.weight} kg</p>
+              <p key={setIndex}>
+                Set {setIndex + 1}: {set.reps} reps @ {set.weight} kg 
+                <span className="difficulty-indicator">
+                  {difficultyEmojis[set.difficulty]}
+                </span>
+              </p>
             ))}
           </div>
         ))}

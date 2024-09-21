@@ -27,6 +27,12 @@ const WorkoutSchema = new mongoose.Schema({
       weight: {
         type: Number,
         required: true
+      },
+      // Add this new field
+      difficulty: {
+        type: String,
+        enum: ['too_easy', 'normal', 'too_hard'],
+        default: 'normal'
       }
     }]
   }],
