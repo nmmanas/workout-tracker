@@ -401,7 +401,7 @@ const NewWorkout = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="set-actions-mobile">
+                  <div className="set-actions-group">
                     <div className="set-actions">
                       <button 
                         onClick={() => toggleSetCompletion(index)}
