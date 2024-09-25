@@ -341,9 +341,9 @@ const NewWorkout = () => {
   };
 
   const difficultyEmojis = {
-    too_easy: '😊',
-    normal: '😐',
-    too_hard: '😓'
+    too_easy: { emoji: '😊', text: 'Easy' },
+    normal: { emoji: '😐', text: 'Normal' },
+    too_hard: { emoji: '😓', text: 'Hard' }
   };
 
   if (error) {
@@ -401,6 +401,18 @@ const NewWorkout = () => {
                       </div>
                     </div>
                   </div>
+                  <div className="set-difficulty">
+                    {Object.entries(difficultyEmojis).map(([difficulty, { emoji, text }]) => (
+                      <button 
+                        key={difficulty}
+                        onClick={() => handleSetDifficulty(index, difficulty)}
+                        className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
+                        aria-label={difficulty.replace('_', ' ')}
+                      >
+                        {emoji}<span>{text}</span>
+                      </button>
+                    ))}
+                  </div>
                   <div className="set-actions-group">
                     <div className="set-actions">
                       <button 
@@ -422,19 +434,6 @@ const NewWorkout = () => {
                       >
                         <FaTimes />
                       </button>
-                    </div>
-                    <div className="set-difficulty">
-                      {Object.entries(difficultyEmojis).map(([difficulty, emoji]) => (
-                        <button 
-                          key={difficulty}
-                          onClick={() => handleSetDifficulty(index, difficulty)}
-                          className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
-                          aria-label={difficulty.replace('_', ' ')}
-                          disabled={!set.completed}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
                     </div>
                   </div>
                 </div>
@@ -458,7 +457,7 @@ const NewWorkout = () => {
               <p key={setIndex}>
                 Set {setIndex + 1}: {set.reps} reps @ {set.weight} kg 
                 <span className="difficulty-indicator">
-                  {difficultyEmojis[set.difficulty]}
+                  {difficultyEmojis[set.difficulty].emoji}
                 </span>
               </p>
             ))}
