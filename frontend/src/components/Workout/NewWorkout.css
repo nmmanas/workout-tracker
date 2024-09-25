@@ -315,3 +315,49 @@
     display: none;
   }
 }
+
+.exercise-select {
+  margin-bottom: 1rem;
+}
+
+.exercise-select select {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 1.2em auto;
+}
+
+.exercise-select select:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.finish-workout-button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 1rem;
+}
+
+.finish-workout-button:hover {
+  background-color: #218838;
+}
