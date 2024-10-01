@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-slot": "^1.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
     "next-pwa": "^5.6.0",
     "react": "^18.2.0",
     "react-datepicker": "^7.4.0",
@@ -15,6 +19,7 @@
     "react-router-dom": "^6.26.1",
     "react-scripts": "^5.0.1",
     "recharts": "^2.12.7",
+    "tailwindcss-animate": "^1.0.7",
     "web-vitals": "^4.2.3"
   },
   "scripts": {
