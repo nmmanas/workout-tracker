@@ -127,8 +127,17 @@ const WorkoutProgressChart = () => {
                 dataKey="date" 
                 tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
               />
-              <YAxis yAxisId="left" label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft' }} />
-              <YAxis yAxisId="right" orientation="right" label={{ value: 'Reps', angle: 90, position: 'insideRight' }} />
+              <YAxis 
+                yAxisId="left" 
+                label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft', style: { fill: '#8884d8' } }} 
+                tick={{ fill: '#8884d8' }}
+              />
+              <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                label={{ value: 'Reps', angle: 90, position: 'insideRight', style: { fill: '#82ca9d' } }} 
+                tick={{ fill: '#82ca9d' }}
+              />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kgs)" dot={{ r: 4 }} />
