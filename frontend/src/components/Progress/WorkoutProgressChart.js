@@ -94,12 +94,13 @@ const WorkoutProgressChart = () => {
   return (
     <div className="workout-progress-chart">
       <h2 className="text-xl md:text-2xl font-bold mb-4">Workout Progress</h2>
-      <div className="mb-4">
+      <div className="exercise-select mb-4">
         <select
           value={selectedExercise}
           onChange={handleExerciseChange}
-          className="w-full md:w-auto p-2 border rounded-md bg-white"
+          className="w-full p-2 border border-gray-300 rounded-md bg-white cursor-pointer appearance-none"
         >
+          <option value="">Select an exercise</option>
           {exercises.map(exercise => (
             <option key={exercise._id} value={exercise.name}>{exercise.name}</option>
           ))}
