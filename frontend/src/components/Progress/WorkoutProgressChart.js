@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import axios from 'axios';
+import { FaSpinner } from 'react-icons/fa';
 
 const difficultyColors = {
   too_easy: "#4CAF50",
@@ -87,9 +88,8 @@ const WorkoutProgressChart = () => {
     return null;
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (exerciseData.length === 0) return <div>No data available for this exercise</div>;
+  if (error) return <div className="error-message">Error: {error}</div>;
+  if (exerciseData.length === 0 && !loading) return <div>No data available for this exercise</div>;
 
   return (
     <div className="workout-progress-chart">
@@ -105,41 +105,47 @@ const WorkoutProgressChart = () => {
           ))}
         </select>
       </div>
-      <div style={{ width: '100%', height: 400 }}>
-        <ResponsiveContainer>
-          <LineChart
-            data={exerciseData}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date" 
-              tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
-            />
-            <YAxis yAxisId="left" label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft' }} />
-            <YAxis yAxisId="right" orientation="right" label={{ value: 'Reps', angle: 90, position: 'insideRight' }} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kgs)" dot={{ r: 4 }} />
-            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 4 }} />
-            {exerciseData.map((entry, index) => (
-              <ReferenceLine
-                key={index}
-                x={entry.date}
-                stroke={difficultyColors[entry.difficulty]}
-                strokeWidth={2}
-                yAxisId="left"
-                ifOverflow="extendDomain"
+      {loading ? (
+        <div className="loading-spinner flex justify-center items-center h-96">
+          <FaSpinner className="spinner text-4xl animate-spin" />
+        </div>
+      ) : (
+        <div style={{ width: '100%', height: 400 }}>
+          <ResponsiveContainer>
+            <LineChart
+              data={exerciseData}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="date" 
+                tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+              <YAxis yAxisId="left" label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft' }} />
+              <YAxis yAxisId="right" orientation="right" label={{ value: 'Reps', angle: 90, position: 'insideRight' }} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kgs)" dot={{ r: 4 }} />
+              <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 4 }} />
+              {exerciseData.map((entry, index) => (
+                <ReferenceLine
+                  key={index}
+                  x={entry.date}
+                  stroke={difficultyColors[entry.difficulty]}
+                  strokeWidth={2}
+                  yAxisId="left"
+                  ifOverflow="extendDomain"
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
       <div className="difficulty-legend mt-4 flex flex-wrap justify-center gap-2">
         {Object.entries(difficultyColors).map(([difficulty, color]) => (
           <div key={difficulty} className="difficulty-item flex items-center">
