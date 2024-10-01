@@ -75,35 +75,39 @@ router.get('/last-data/:exerciseName', auth, async (req, res) => {
   }
 });
 
-// Add this new route at the end of the file
-
 // GET /api/exercises/progress/:exerciseName
 router.get('/progress/:exerciseName', auth, async (req, res) => {
   try {
     const { exerciseName } = req.params;
     const userId = req.user.id;
+    const limit = parseInt(req.query.limit) || 12; // Default to 12 if not specified
 
     const workouts = await Workout.find({
       user: userId,
       'exercises.name': exerciseName,
       isDraft: false
-    }).sort({ date: 1 });
+    }).sort({ date: -1 });
 
-    const progressData = workouts.map(workout => {
+    let progressData = [];
+    for (const workout of workouts) {
       const exercise = workout.exercises.find(e => e.name === exerciseName);
       if (exercise && exercise.sets.length > 0) {
-        const lastSet = exercise.sets[exercise.sets.length - 1];
-        return {
-          date: workout.date.toISOString(), // Ensure date is in ISO format
-          weight: lastSet.weight || null,
-          reps: lastSet.reps || null,
-          difficulty: lastSet.difficulty || 'neutral'
-        };
+        for (const set of exercise.sets) {
+          progressData.push({
+            date: workout.date.toISOString(),
+            weight: set.weight || null,
+            reps: set.reps || null,
+            difficulty: set.difficulty || 'neutral'
+          });
+          if (progressData.length >= limit) break;
+        }
       }
-      return null;
-    }).filter(data => data !== null);
+      if (progressData.length >= limit) break;
+    }
 
-    console.log('Sending progress data:', progressData); // Add this line
+    // Reverse the array to maintain chronological order
+    progressData.reverse();
+
     res.json(progressData);
   } catch (error) {
     console.error('Error fetching exercise progress:', error);
