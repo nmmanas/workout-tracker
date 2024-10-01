@@ -4,6 +4,7 @@ const Exercise = require('../models/Exercise');
 const auth = require('../middleware/auth');
 const adminAuth = require('../middleware/adminAuth');
 const User = require('../models/User');
+const Workout = require('../models/Workout');
 
 // GET all exercises (accessible to all authenticated users)
 router.get('/', auth, async (req, res) => {
@@ -71,6 +72,42 @@ router.get('/last-data/:exerciseName', auth, async (req, res) => {
   } catch (error) {
     console.error('Error fetching last exercise data:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Add this new route at the end of the file
+
+// GET /api/exercises/progress/:exerciseName
+router.get('/progress/:exerciseName', auth, async (req, res) => {
+  try {
+    const { exerciseName } = req.params;
+    const userId = req.user.id;
+
+    const workouts = await Workout.find({
+      user: userId,
+      'exercises.name': exerciseName,
+      isDraft: false
+    }).sort({ date: 1 });
+
+    const progressData = workouts.map(workout => {
+      const exercise = workout.exercises.find(e => e.name === exerciseName);
+      if (exercise && exercise.sets.length > 0) {
+        const lastSet = exercise.sets[exercise.sets.length - 1];
+        return {
+          date: workout.date.toISOString(), // Ensure date is in ISO format
+          weight: lastSet.weight || null,
+          reps: lastSet.reps || null,
+          difficulty: lastSet.difficulty || 'neutral'
+        };
+      }
+      return null;
+    }).filter(data => data !== null);
+
+    console.log('Sending progress data:', progressData); // Add this line
+    res.json(progressData);
+  } catch (error) {
+    console.error('Error fetching exercise progress:', error);
+    res.status(500).json({ message: 'Error fetching exercise progress', error: error.message });
   }
 });
 

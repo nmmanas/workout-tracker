@@ -1,50 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
-
-// Dummy data - replace this with your actual data from the database
-const dummyData = [
-  { date: '2023-01-01', weight: 100, reps: 8, difficulty: 'easy' },
-  { date: '2023-01-08', weight: 105, reps: 8, difficulty: 'neutral' },
-  { date: '2023-01-15', weight: 110, reps: 7, difficulty: 'hard' },
-  { date: '2023-01-22', weight: 110, reps: 8, difficulty: 'neutral' },
-  { date: '2023-01-29', weight: 115, reps: 8, difficulty: 'hard' },
-  { date: '2023-02-05', weight: 120, reps: 7, difficulty: 'hard' },
-  { date: '2023-02-12', weight: 120, reps: 8, difficulty: 'neutral' },
-  { date: '2023-02-19', weight: 125, reps: 8, difficulty: 'easy' },
-];
+import axios from 'axios';
 
 const difficultyColors = {
-  easy: "#4CAF50",
-  neutral: "#FFC107",
-  hard: "#F44336"
+  too_easy: "#4CAF50",
+  normal: "#FFC107",
+  too_hard: "#F44336"
 };
 
 const difficultyEmojis = {
-  easy: "😊",
-  neutral: "😐",
-  hard: "😓"
+  too_easy: "😊",
+  normal: "😐",
+  too_hard: "😓"
 };
 
 const WorkoutProgressChart = () => {
-  const [selectedExercise, setSelectedExercise] = useState("Bench Press");
-  const [isMobile, setIsMobile] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState("");
+  const [exerciseData, setExerciseData] = useState([]);
+  const [exercises, setExercises] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchExercises = useCallback(async () => {
+    try {
+      const response = await axios.get('/api/exercises', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      setExercises(response.data);
+      if (response.data.length > 0 && !selectedExercise) {
+        setSelectedExercise(response.data[0].name);
+      }
+    } catch (err) {
+      console.error('Error fetching exercises:', err);
+      setError('Failed to fetch exercises');
+    }
+  }, [selectedExercise]);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    fetchExercises();
+  }, [fetchExercises]);
+
+  const fetchExerciseProgress = useCallback(async (exerciseName) => {
+    if (!exerciseName) return;
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/exercises/progress/${exerciseName}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      setExerciseData(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching exercise progress:', err);
+      setError('Failed to fetch exercise progress');
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    if (selectedExercise) {
+      fetchExerciseProgress(selectedExercise);
+    }
+  }, [selectedExercise, fetchExerciseProgress]);
+
+  const handleExerciseChange = (e) => {
+    setSelectedExercise(e.target.value);
+  };
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="custom-tooltip">
-          <p className="font-bold">{label}</p>
-          <p>Weight: {data.weight} lbs</p>
+        <div className="custom-tooltip bg-white p-2 border rounded shadow">
+          <p className="font-bold">{new Date(label).toLocaleDateString()}</p>
+          <p>Weight: {data.weight} kgs</p>
           <p>Reps: {data.reps}</p>
           <p>Difficulty: {difficultyEmojis[data.difficulty]} {data.difficulty}</p>
         </div>
@@ -53,50 +81,47 @@ const WorkoutProgressChart = () => {
     return null;
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (exerciseData.length === 0) return <div>No data available for this exercise</div>;
+
   return (
     <div className="workout-progress-chart">
       <h2 className="text-xl md:text-2xl font-bold mb-4">Workout Progress</h2>
-      <div className="chart-controls">
-        <div className="exercise-select">
-          <select
-            value={selectedExercise}
-            onChange={(e) => setSelectedExercise(e.target.value)}
-            className="w-full md:w-auto p-2 border rounded-md bg-white"
-          >
-            <option value="Bench Press">Bench Press</option>
-            <option value="Squat">Squat</option>
-            <option value="Deadlift">Deadlift</option>
-          </select>
-        </div>
+      <div className="mb-4">
+        <select
+          value={selectedExercise}
+          onChange={handleExerciseChange}
+          className="w-full md:w-auto p-2 border rounded-md bg-white"
+        >
+          {exercises.map(exercise => (
+            <option key={exercise._id} value={exercise.name}>{exercise.name}</option>
+          ))}
+        </select>
       </div>
-      <div className="h-[300px] md:h-[400px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={dummyData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+      <div style={{ width: '100%', height: 400 }}>
+        <ResponsiveContainer>
+          <LineChart
+            data={exerciseData}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="date" 
-              tick={{ fontSize: isMobile ? 10 : 12 }}
-              interval={isMobile ? 1 : 0}
-              angle={isMobile ? -45 : 0}
-              textAnchor={isMobile ? "end" : "middle"}
-              height={isMobile ? 50 : 30}
+              tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
             />
-            <YAxis 
-              yAxisId="left" 
-              tick={{ fontSize: isMobile ? 10 : 12 }} 
-              width={30}
-            />
-            <YAxis 
-              yAxisId="right" 
-              orientation="right" 
-              tick={{ fontSize: isMobile ? 10 : 12 }} 
-              width={30}
-            />
+            <YAxis yAxisId="left" label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft' }} />
+            <YAxis yAxisId="right" orientation="right" label={{ value: 'Reps', angle: 90, position: 'insideRight' }} />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: isMobile ? 10 : 12 }} />
-            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (lbs)" />
-            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" />
-            {dummyData.map((entry, index) => (
+            <Legend />
+            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kgs)" dot={{ r: 4 }} />
+            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 4 }} />
+            {exerciseData.map((entry, index) => (
               <ReferenceLine
                 key={index}
                 x={entry.date}
