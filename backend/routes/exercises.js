@@ -89,6 +89,7 @@ router.get('/progress/:exerciseName', auth, async (req, res) => {
     }).sort({ date: -1 });
 
     let progressData = [];
+    
     for (const workout of workouts) {
       const exercise = workout.exercises.find(e => e.name === exerciseName);
       if (exercise && exercise.sets.length > 0) {
