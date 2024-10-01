@@ -23,6 +23,7 @@ const Navbar = ({ userName, onLogout, isAdmin }) => {
         <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>Dashboard</Link>
           <Link to="/history" onClick={() => setMenuOpen(false)}>History</Link>
+          <Link to="/progress" onClick={() => setMenuOpen(false)}>Progress</Link>
           <Link to="/exercises" onClick={() => setMenuOpen(false)}>Exercises</Link>
           {isAdmin && (
             <Link to="/users" onClick={() => setMenuOpen(false)}>Users</Link>
