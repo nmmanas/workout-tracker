@@ -77,11 +77,11 @@ const ExercisesPage = () => {
       }
       
       if (editingExercise) {
-        await api.put(`/api/exercises/${editingExercise._id}`, exerciseData, {
+        await api.put(`/exercises/${editingExercise._id}`, exerciseData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else {
-        await api.post('/api/exercises', exerciseData, {
+        await api.post('/exercises', exerciseData, {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -114,7 +114,7 @@ const ExercisesPage = () => {
         if (!token) {
           throw new Error('No token found');
         }
-        await api.delete(`/api/exercises/${exerciseToDelete._id}`, {
+        await api.delete(`/exercises/${exerciseToDelete._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         fetchExercises();
