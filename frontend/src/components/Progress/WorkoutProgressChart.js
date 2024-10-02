@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
+import Select from 'react-select';
 
 const difficultyColors = {
   too_easy: "#4CAF50",
@@ -69,8 +70,18 @@ const WorkoutProgressChart = () => {
     }
   }, [selectedExercise, fetchExerciseProgress]);
 
-  const handleExerciseChange = (e) => {
-    setSelectedExercise(e.target.value);
+  // Convert exercises to options format for react-select
+  const exerciseOptions = exercises.map(exercise => ({
+    value: exercise.name,
+    label: exercise.name
+  }));
+
+  const handleExerciseChange = (selectedOption) => {
+    if (selectedOption) {
+      setSelectedExercise(selectedOption.value);
+    } else {
+      setSelectedExercise("");
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }) => {
@@ -95,16 +106,16 @@ const WorkoutProgressChart = () => {
     <div className="workout-progress-chart">
       <h2 className="text-xl md:text-2xl font-bold mb-4">Workout Progress</h2>
       <div className="exercise-select mb-4">
-        <select
-          value={selectedExercise}
+        <Select
+          value={exerciseOptions.find(option => option.value === selectedExercise)}
           onChange={handleExerciseChange}
-          className="w-full p-2 border border-gray-300 rounded-md bg-white cursor-pointer appearance-none"
-        >
-          <option value="">Select an exercise</option>
-          {exercises.map(exercise => (
-            <option key={exercise._id} value={exercise.name}>{exercise.name}</option>
-          ))}
-        </select>
+          options={exerciseOptions}
+          isClearable
+          isSearchable
+          placeholder="Select or search an exercise"
+          className="w-full"
+          classNamePrefix="react-select"
+        />
       </div>
       {loading ? (
         <div className="loading-spinner flex justify-center items-center h-96">

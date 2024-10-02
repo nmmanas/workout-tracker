@@ -4,6 +4,7 @@ import api from '../../api/axiosConfig';
 import '../common.css';
 import './NewWorkout.css';
 import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
+import Select from 'react-select';
 
 const NewWorkout = () => {
   const [exercises, setExercises] = useState([]);
@@ -145,48 +146,61 @@ const NewWorkout = () => {
     fetchSuggestedExercises();
   }, []);
 
-  const handleExerciseSelect = async (e) => {
-    const exerciseId = e.target.value;
-    const selected = exercises.find(ex => ex._id === exerciseId);
-    setSelectedExercise(exerciseId);
-    if (selected) {
-      setCurrentExercise(selected);
-      try {
-        const response = await api.get(`/exercises/last-data/${selected.name}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
-        console.log('Last exercise data response:', response.data);
-        setLastExerciseData(response.data);
-        
-        const newReps = response.data.reps !== null ? response.data.reps.toString() : '10';
-        const newWeight = response.data.weight !== null ? response.data.weight.toString() : '0';
-        
-        setReps(newReps);
-        setWeight(newWeight);
+  // Convert exercises to options format for react-select
+  const exerciseOptions = suggestedExercises.map(exercise => ({
+    value: exercise._id,
+    label: exercise.name
+  }));
+
+  const handleExerciseSelect = async (selectedOption) => {
+    if (selectedOption) {
+      const exerciseId = selectedOption.value;
+      const selected = exercises.find(ex => ex._id === exerciseId);
+      setSelectedExercise(exerciseId);
+      if (selected) {
+        setCurrentExercise(selected);
+        try {
+          const response = await api.get(`/exercises/last-data/${selected.name}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          });
+          console.log('Last exercise data response:', response.data);
+          setLastExerciseData(response.data);
+          
+          const newReps = response.data.reps !== null ? response.data.reps.toString() : '10';
+          const newWeight = response.data.weight !== null ? response.data.weight.toString() : '0';
+          
+          setReps(newReps);
+          setWeight(newWeight);
+          setLastAddedSet(null);
+
+          // Automatically add 3 default sets with reset difficulty
+          const defaultSets = Array.from({ length: 3 }, () => ({
+            reps: parseInt(newReps),
+            weight: parseFloat(newWeight),
+            completed: false,
+            difficulty: 'normal' // Reset difficulty to 'normal'
+          }));
+          setSets(defaultSets);
+        } catch (error) {
+          console.error('Error fetching last exercise data:', error);
+          setLastExerciseData({ reps: '10', weight: '0' });
+          setReps('10');
+          setWeight('0');
+
+          // Add 3 default sets with default values and reset difficulty
+          const defaultSets = Array.from({ length: 3 }, () => ({
+            reps: 10,
+            weight: 0,
+            completed: false,
+            difficulty: 'normal' // Reset difficulty to 'normal'
+          }));
+          setSets(defaultSets);
+        }
+      } else {
+        setCurrentExercise(null);
+        setSets([]);
+        setLastExerciseData({ reps: '', weight: '' });
         setLastAddedSet(null);
-
-        // Automatically add 3 default sets with reset difficulty
-        const defaultSets = Array.from({ length: 3 }, () => ({
-          reps: parseInt(newReps),
-          weight: parseFloat(newWeight),
-          completed: false,
-          difficulty: 'normal' // Reset difficulty to 'normal'
-        }));
-        setSets(defaultSets);
-      } catch (error) {
-        console.error('Error fetching last exercise data:', error);
-        setLastExerciseData({ reps: '10', weight: '0' });
-        setReps('10');
-        setWeight('0');
-
-        // Add 3 default sets with default values and reset difficulty
-        const defaultSets = Array.from({ length: 3 }, () => ({
-          reps: 10,
-          weight: 0,
-          completed: false,
-          difficulty: 'normal' // Reset difficulty to 'normal'
-        }));
-        setSets(defaultSets);
       }
     } else {
       setCurrentExercise(null);
@@ -354,12 +368,14 @@ const NewWorkout = () => {
     <div className="new-workout">
       <h2>New Workout</h2>
       <div className="exercise-select">
-        <select value={selectedExercise} onChange={handleExerciseSelect}>
-          <option value="">Select an exercise</option>
-          {suggestedExercises.map(exercise => (
-            <option key={exercise._id} value={exercise._id}>{exercise.name}</option>
-          ))}
-        </select>
+        <Select
+          value={exerciseOptions.find(option => option.value === selectedExercise)}
+          onChange={handleExerciseSelect}
+          options={exerciseOptions}
+          isClearable
+          isSearchable
+          placeholder="Select or search an exercise"
+        />
       </div>
       {currentExercise && (
         <div className="current-exercise">
