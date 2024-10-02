@@ -5,6 +5,8 @@ TODO:
 4. add a button to delete an excercise from a workout
 5. edit sets for an excercise
 6. edit excercises for a workout
+7. progress graphs show last set of an excercise, need to show all sets, with limit of 12 sets
+8. use serializer for the apis responses to validate the data types
 
 
 DONE:
