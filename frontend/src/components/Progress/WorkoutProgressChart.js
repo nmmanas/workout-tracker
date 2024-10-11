@@ -123,14 +123,14 @@ const WorkoutProgressChart = ({ initialExercise }) => {
           <FaSpinner className="spinner text-4xl animate-spin" />
         </div>
       ) : (
-        <div className="chart-container w-full" style={{ height: '300px', maxWidth: '100%' }}>
+        <div className="chart-container w-full" style={{ height: '400px', maxWidth: '100%', overflow: 'visible' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={exerciseData}
               margin={{
                 top: 5,
-                right: 10,
-                left: 0,
+                right: 5,
+                left: 5,
                 bottom: 5,
               }}
             >
@@ -139,19 +139,29 @@ const WorkoutProgressChart = ({ initialExercise }) => {
                 dataKey="date" 
                 tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
                 tick={{ fontSize: 10 }}
+                interval="preserveStartEnd"
+                minTickGap={10}
+                axisLine={false}
+                tickLine={false}
               />
               <YAxis 
                 yAxisId="left" 
                 tick={{ fontSize: 10, fill: '#8884d8' }}
                 tickFormatter={(value) => `${value}kg`}
+                width={30}
+                axisLine={false}
+                tickLine={false}
               />
               <YAxis 
                 yAxisId="right" 
                 orientation="right" 
                 tick={{ fontSize: 10, fill: '#82ca9d' }}
+                width={20}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Legend wrapperStyle={{ fontSize: 10, paddingTop: '10px' }} />
               <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
               <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
               {exerciseData.map((entry, index) => (
