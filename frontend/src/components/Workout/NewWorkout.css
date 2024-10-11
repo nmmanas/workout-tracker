@@ -361,3 +361,37 @@
 .finish-workout-button:hover {
   background-color: #218838;
 }
+
+.container {
+  position: relative;
+  display: flex;
+  max-width: 100%;
+  margin: 0 auto;
+  transition: padding-right 0.3s ease-in-out;
+}
+
+.main-content {
+  flex: 1;
+  transition: width 0.3s ease-in-out;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .container.sidebar-open {
+    padding-right: 300px;
+  }
+
+  .container.sidebar-open .main-content {
+    width: calc(100% - 300px);
+  }
+}
+
+@media (max-width: 1023px) {
+  .container.sidebar-open {
+    padding-right: 0;
+  }
+
+  .container.sidebar-open .main-content {
+    width: 100%;
+  }
+}

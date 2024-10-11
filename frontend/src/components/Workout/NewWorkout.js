@@ -5,6 +5,7 @@ import '../common.css';
 import './NewWorkout.css';
 import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
 import Select from 'react-select';
+import ExerciseSidebar from './ExerciseSidebar';
 
 const NewWorkout = () => {
   const [exercises, setExercises] = useState([]);
@@ -19,6 +20,21 @@ const NewWorkout = () => {
   const [lastExerciseData, setLastExerciseData] = useState({ reps: '', weight: '' });
   const [lastAddedSet, setLastAddedSet] = useState(null);
   const [suggestedExercises, setSuggestedExercises] = useState([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call it initially
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleWeightChange = (index, amount) => {
     if (sets[index].completed) return; // Don't change if set is completed
@@ -360,129 +376,143 @@ const NewWorkout = () => {
     too_hard: { emoji: '😓', text: 'Hard' }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   if (error) {
     return <div className="error-message">{error}</div>;
   }
 
   return (
-    <div className="new-workout">
-      <h2>New Workout</h2>
-      <div className="exercise-select">
-        <Select
-          value={exerciseOptions.find(option => option.value === selectedExercise)}
-          onChange={handleExerciseSelect}
-          options={exerciseOptions}
-          isClearable
-          isSearchable
-          placeholder="Select or search an exercise"
-        />
-      </div>
-      {currentExercise && (
-        <div className="current-exercise">
-          <h3>{currentExercise.name}</h3>
-          <div className="set-inputs">
-            {sets.map((set, index) => {
-              const canComplete = sets.slice(0, index).every(s => s.completed);
-              const canIncomplete = sets.slice(index + 1).every(s => !s.completed);
-              
-              return (
-                <div key={index} className="set-row">
-                  <div className="set-number">{index + 1}</div>
-                  <div className="set-inputs-group">
-                    <div className="input-group">
-                      <label>Reps</label>
-                      <div className="input-controls">
-                        <button onClick={() => handleRepsChange(index, -1)} disabled={set.completed}><FaMinus /></button>
-                        <input
-                          type="number"
-                          value={set.reps}
-                          onChange={(e) => handleSetChange(index, 'reps', parseInt(e.target.value))}
-                          disabled={set.completed}
-                        />
-                        <button onClick={() => handleRepsChange(index, 1)} disabled={set.completed}><FaPlus /></button>
-                      </div>
-                    </div>
-                    <div className="input-group">
-                      <label>Weight (kg)</label>
-                      <div className="input-controls">
-                        <button onClick={() => handleWeightChange(index, -2.5)} disabled={set.completed}><FaMinus /></button>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={set.weight}
-                          onChange={(e) => handleSetChange(index, 'weight', parseFloat(e.target.value))}
-                          disabled={set.completed}
-                        />
-                        <button onClick={() => handleWeightChange(index, 2.5)} disabled={set.completed}><FaPlus /></button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="set-difficulty">
-                    {Object.entries(difficultyEmojis).map(([difficulty, { emoji, text }]) => (
-                      <button 
-                        key={difficulty}
-                        onClick={() => handleSetDifficulty(index, difficulty)}
-                        className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
-                        aria-label={difficulty.replace('_', ' ')}
-                      >
-                        {emoji}<span>{text}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="set-actions-group">
-                    <div className="set-actions">
-                      <button 
-                        onClick={() => toggleSetCompletion(index)}
-                        className={`complete-set-button 
-                          ${set.completed ? 'complete' : 'incomplete'}
-                          ${!set.completed && !canComplete ? 'disabled' : ''}
-                          ${set.completed && !canIncomplete ? 'disabled' : ''}`}
-                        aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
-                        disabled={(!set.completed && !canComplete) || (set.completed && !canIncomplete)}
-                      >
-                        {set.completed ? '✓' : '○'}
-                      </button>
-                      <button 
-                        onClick={() => handleRemoveSet(index)}
-                        className={`remove-set-button ${set.completed ? 'disabled' : ''}`}
-                        aria-label="Remove set"
-                        disabled={set.completed}
-                      >
-                        <FaTimes />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <div className="add-set-row">
-              <button onClick={handleAddSet} className="add-set-button">
-                <FaPlus />
-              </button>
-            </div>
-          </div>
-          <button onClick={handleCompleteExercise} className="complete-exercise-button">Complete Exercise</button>
+    <div className={`new-workout container ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+      {/* Main content */}
+      <div className="main-content">
+        <h2>New Workout</h2>
+        <div className="exercise-select">
+          <Select
+            value={exerciseOptions.find(option => option.value === selectedExercise)}
+            onChange={handleExerciseSelect}
+            options={exerciseOptions}
+            isClearable
+            isSearchable
+            placeholder="Select or search an exercise"
+          />
         </div>
-      )}
-      <div className="completed-exercises">
-        <h3>Completed Exercises</h3>
-        {completedExercises.map((exercise, index) => (
-          <div key={index} className="completed-exercise-item">
-            <h4>{exercise.name}</h4>
-            {exercise.sets.map((set, setIndex) => (
-              <p key={setIndex}>
-                Set {setIndex + 1}: {set.reps} reps @ {set.weight} kg 
-                <span className="difficulty-indicator">
-                  {difficultyEmojis[set.difficulty].emoji}
-                </span>
-              </p>
-            ))}
+        {currentExercise && (
+          <div className="current-exercise">
+            <h3>{currentExercise.name}</h3>
+            <div className="set-inputs">
+              {sets.map((set, index) => {
+                const canComplete = sets.slice(0, index).every(s => s.completed);
+                const canIncomplete = sets.slice(index + 1).every(s => !s.completed);
+                
+                return (
+                  <div key={index} className="set-row">
+                    <div className="set-number">{index + 1}</div>
+                    <div className="set-inputs-group">
+                      <div className="input-group">
+                        <label>Reps</label>
+                        <div className="input-controls">
+                          <button onClick={() => handleRepsChange(index, -1)} disabled={set.completed}><FaMinus /></button>
+                          <input
+                            type="number"
+                            value={set.reps}
+                            onChange={(e) => handleSetChange(index, 'reps', parseInt(e.target.value))}
+                            disabled={set.completed}
+                          />
+                          <button onClick={() => handleRepsChange(index, 1)} disabled={set.completed}><FaPlus /></button>
+                        </div>
+                      </div>
+                      <div className="input-group">
+                        <label>Weight (kg)</label>
+                        <div className="input-controls">
+                          <button onClick={() => handleWeightChange(index, -2.5)} disabled={set.completed}><FaMinus /></button>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={set.weight}
+                            onChange={(e) => handleSetChange(index, 'weight', parseFloat(e.target.value))}
+                            disabled={set.completed}
+                          />
+                          <button onClick={() => handleWeightChange(index, 2.5)} disabled={set.completed}><FaPlus /></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="set-difficulty">
+                      {Object.entries(difficultyEmojis).map(([difficulty, { emoji, text }]) => (
+                        <button 
+                          key={difficulty}
+                          onClick={() => handleSetDifficulty(index, difficulty)}
+                          className={`difficulty-button ${set.difficulty === difficulty ? 'active' : ''}`}
+                          aria-label={difficulty.replace('_', ' ')}
+                        >
+                          {emoji}<span>{text}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="set-actions-group">
+                      <div className="set-actions">
+                        <button 
+                          onClick={() => toggleSetCompletion(index)}
+                          className={`complete-set-button 
+                            ${set.completed ? 'complete' : 'incomplete'}
+                            ${!set.completed && !canComplete ? 'disabled' : ''}
+                            ${set.completed && !canIncomplete ? 'disabled' : ''}`}
+                          aria-label={set.completed ? 'Mark as incomplete' : 'Mark as complete'}
+                          disabled={(!set.completed && !canComplete) || (set.completed && !canIncomplete)}
+                        >
+                          {set.completed ? '✓' : '○'}
+                        </button>
+                        <button 
+                          onClick={() => handleRemoveSet(index)}
+                          className={`remove-set-button ${set.completed ? 'disabled' : ''}`}
+                          aria-label="Remove set"
+                          disabled={set.completed}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="add-set-row">
+                <button onClick={handleAddSet} className="add-set-button">
+                  <FaPlus />
+                </button>
+              </div>
+            </div>
+            <button onClick={handleCompleteExercise} className="complete-exercise-button">Complete Exercise</button>
           </div>
-        ))}
+        )}
+        <div className="completed-exercises">
+          <h3>Completed Exercises</h3>
+          {completedExercises.map((exercise, index) => (
+            <div key={index} className="completed-exercise-item">
+              <h4>{exercise.name}</h4>
+              {exercise.sets.map((set, setIndex) => (
+                <p key={setIndex}>
+                  Set {setIndex + 1}: {set.reps} reps @ {set.weight} kg 
+                  <span className="difficulty-indicator">
+                    {difficultyEmojis[set.difficulty].emoji}
+                  </span>
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+        {completedExercises.length > 0 && (
+          <button onClick={handleFinishWorkout} className="finish-workout-button">Finish Workout</button>
+        )}
       </div>
-      {completedExercises.length > 0 && (
-        <button onClick={handleFinishWorkout} className="finish-workout-button">Finish Workout</button>
-      )}
+
+      {/* Sidebar */}
+      <ExerciseSidebar
+        isOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+        currentExercise={currentExercise}
+      />
     </div>
   );
 };
