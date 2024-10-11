@@ -12,21 +12,9 @@ const ExerciseSidebar = ({ isOpen, toggleSidebar, currentExercise }) => {
           <>
             <div className="exercise-details">
               <h3>{currentExercise.name}</h3>
-              <p>Target Muscle: {currentExercise.targetMuscle || 'Not specified'}</p>
-              <p>Equipment: {currentExercise.equipment || 'Not specified'}</p>
-              <p>Instructions:</p>
-              <ol>
-                {currentExercise.instructions ? (
-                  currentExercise.instructions.map((instruction, index) => (
-                    <li key={index}>{instruction}</li>
-                  ))
-                ) : (
-                  <li>No instructions available.</li>
-                )}
-              </ol>
             </div>
             <div className="exercise-progress">
-              <h3>Exercise Progress</h3>
+              <h4>Exercise Progress</h4>
               <WorkoutProgressChart initialExercise={currentExercise.name} />
             </div>
           </>
