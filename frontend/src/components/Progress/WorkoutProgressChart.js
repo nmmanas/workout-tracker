@@ -103,7 +103,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
   if (exerciseData.length === 0 && !loading) return <div>No data available for this exercise</div>;
 
   return (
-    <div className="workout-progress-chart">
+    <div className="workout-progress-chart w-full">
       {!initialExercise && (
         <div className="exercise-select mb-4">
           <Select
@@ -119,18 +119,18 @@ const WorkoutProgressChart = ({ initialExercise }) => {
         </div>
       )}
       {loading ? (
-        <div className="loading-spinner flex justify-center items-center h-96">
+        <div className="loading-spinner flex justify-center items-center h-64">
           <FaSpinner className="spinner text-4xl animate-spin" />
         </div>
       ) : (
-        <div style={{ width: '100%', height: 400 }}>
-          <ResponsiveContainer>
+        <div className="chart-container w-full" style={{ height: '300px', maxWidth: '100%' }}>
+          <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={exerciseData}
               margin={{
                 top: 5,
-                right: 30,
-                left: 20,
+                right: 10,
+                left: 0,
                 bottom: 5,
               }}
             >
@@ -138,22 +138,22 @@ const WorkoutProgressChart = ({ initialExercise }) => {
               <XAxis 
                 dataKey="date" 
                 tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
+                tick={{ fontSize: 10 }}
               />
               <YAxis 
                 yAxisId="left" 
-                label={{ value: 'Weight (kgs)', angle: -90, position: 'insideLeft', style: { fill: '#8884d8' } }} 
-                tick={{ fill: '#8884d8' }}
+                tick={{ fontSize: 10, fill: '#8884d8' }}
+                tickFormatter={(value) => `${value}kg`}
               />
               <YAxis 
                 yAxisId="right" 
                 orientation="right" 
-                label={{ value: 'Reps', angle: 90, position: 'insideRight', style: { fill: '#82ca9d' } }} 
-                tick={{ fill: '#82ca9d' }}
+                tick={{ fontSize: 10, fill: '#82ca9d' }}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kgs)" dot={{ r: 4 }} />
-              <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 4 }} />
+              <Legend wrapperStyle={{ fontSize: 10 }} />
+              <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
+              <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
               {exerciseData.map((entry, index) => (
                 <ReferenceLine
                   key={index}
@@ -168,11 +168,11 @@ const WorkoutProgressChart = ({ initialExercise }) => {
           </ResponsiveContainer>
         </div>
       )}
-      <div className="difficulty-legend mt-4 flex flex-wrap justify-center gap-2">
+      <div className="difficulty-legend mt-2 flex flex-wrap justify-center gap-2">
         {Object.entries(difficultyColors).map(([difficulty, color]) => (
           <div key={difficulty} className="difficulty-item flex items-center">
-            <div className="color-indicator w-3 h-3 md:w-4 md:h-4 rounded-full mr-1 md:mr-2" style={{ backgroundColor: color }}></div>
-            <span className="text-xs md:text-sm">{difficultyEmojis[difficulty]} {difficultyLabels[difficulty]}</span>
+            <div className="color-indicator w-2 h-2 md:w-3 md:h-3 rounded-full mr-1" style={{ backgroundColor: color }}></div>
+            <span className="text-xs">{difficultyEmojis[difficulty]} {difficultyLabels[difficulty]}</span>
           </div>
         ))}
       </div>
