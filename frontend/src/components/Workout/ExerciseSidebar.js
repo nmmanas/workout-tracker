@@ -1,29 +1,37 @@
 import React from 'react';
 import { FaBars } from 'react-icons/fa';
 import './ExerciseSidebar.css';
+import WorkoutProgressChart from '../Progress/WorkoutProgressChart';
 
 const ExerciseSidebar = ({ isOpen, toggleSidebar, currentExercise }) => {
   return (
     <>
       <div className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
         <h2 className="sidebar-title">Exercise Details</h2>
-        <p>Select an exercise to view more details.</p>
-        {currentExercise && (
-          <div className="exercise-details">
-            <h3>{currentExercise.name}</h3>
-            <p>Target Muscle: {currentExercise.targetMuscle || 'Not specified'}</p>
-            <p>Equipment: {currentExercise.equipment || 'Not specified'}</p>
-            <p>Instructions:</p>
-            <ol>
-              {currentExercise.instructions ? (
-                currentExercise.instructions.map((instruction, index) => (
-                  <li key={index}>{instruction}</li>
-                ))
-              ) : (
-                <li>No instructions available.</li>
-              )}
-            </ol>
-          </div>
+        {currentExercise ? (
+          <>
+            <div className="exercise-details">
+              <h3>{currentExercise.name}</h3>
+              <p>Target Muscle: {currentExercise.targetMuscle || 'Not specified'}</p>
+              <p>Equipment: {currentExercise.equipment || 'Not specified'}</p>
+              <p>Instructions:</p>
+              <ol>
+                {currentExercise.instructions ? (
+                  currentExercise.instructions.map((instruction, index) => (
+                    <li key={index}>{instruction}</li>
+                  ))
+                ) : (
+                  <li>No instructions available.</li>
+                )}
+              </ol>
+            </div>
+            <div className="exercise-progress">
+              <h3>Exercise Progress</h3>
+              <WorkoutProgressChart initialExercise={currentExercise.name} />
+            </div>
+          </>
+        ) : (
+          <p>Select an exercise to view more details.</p>
         )}
       </div>
 

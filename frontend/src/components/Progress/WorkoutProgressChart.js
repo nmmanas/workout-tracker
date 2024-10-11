@@ -22,8 +22,8 @@ const difficultyLabels = {
   too_hard: "Hard"
 };
 
-const WorkoutProgressChart = () => {
-  const [selectedExercise, setSelectedExercise] = useState("");
+const WorkoutProgressChart = ({ initialExercise }) => {
+  const [selectedExercise, setSelectedExercise] = useState(initialExercise || "");
   const [exerciseData, setExerciseData] = useState([]);
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,17 +36,17 @@ const WorkoutProgressChart = () => {
       });
       setExercises(response.data);
       if (response.data.length > 0 && !selectedExercise) {
-        setSelectedExercise(response.data[0].name);
+        setSelectedExercise(initialExercise || response.data[0].name);
       }
     } catch (err) {
       console.error('Error fetching exercises:', err);
       setError('Failed to fetch exercises');
     }
-  }, [selectedExercise]);
+  }, [selectedExercise, initialExercise]);
 
   useEffect(() => {
     fetchExercises();
-  }, [fetchExercises]);
+  }, [fetchExercises, initialExercise]);
 
   const fetchExerciseProgress = useCallback(async (exerciseName) => {
     if (!exerciseName) return;
@@ -104,19 +104,20 @@ const WorkoutProgressChart = () => {
 
   return (
     <div className="workout-progress-chart">
-      <h2 className="text-xl md:text-2xl font-bold mb-4">Workout Progress</h2>
-      <div className="exercise-select mb-4">
-        <Select
-          value={exerciseOptions.find(option => option.value === selectedExercise)}
-          onChange={handleExerciseChange}
-          options={exerciseOptions}
-          isClearable
-          isSearchable
-          placeholder="Select or search an exercise"
-          className="w-full"
-          classNamePrefix="react-select"
-        />
-      </div>
+      {!initialExercise && (
+        <div className="exercise-select mb-4">
+          <Select
+            value={exerciseOptions.find(option => option.value === selectedExercise)}
+            onChange={handleExerciseChange}
+            options={exerciseOptions}
+            isClearable
+            isSearchable
+            placeholder="Select or search an exercise"
+            className="w-full"
+            classNamePrefix="react-select"
+          />
+        </div>
+      )}
       {loading ? (
         <div className="loading-spinner flex justify-center items-center h-96">
           <FaSpinner className="spinner text-4xl animate-spin" />
