@@ -58,7 +58,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const formattedData = response.data.flatMap((workout, workoutIndex) => 
         workout.sets.map((set, setIndex) => ({
           ...set,
-          date: workout.date,
+          date: new Date(workout.date).toLocaleDateString(),
           workoutIndex,
           setIndex,
           xAxis: `${workoutIndex + 1}.${setIndex + 1}`
@@ -108,6 +108,23 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     return null;
   };
 
+  const CustomXAxisTick = ({ x, y, payload }) => {
+    const parts = payload.value.split('.');
+    const isFirstSet = parts[1] === '1';
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666" fontSize={10}>
+          {payload.value}
+        </text>
+        {isFirstSet && (
+          <text x={0} y={0} dy={30} textAnchor="middle" fill="#666" fontSize={10}>
+            {exerciseData.find(d => d.xAxis === payload.value)?.date}
+          </text>
+        )}
+      </g>
+    );
+  };
+
   if (error) return <div className="error-message">Error: {error}</div>;
   if (exerciseData.length === 0 && !loading) return <div>No data available for this exercise</div>;
 
@@ -140,13 +157,14 @@ const WorkoutProgressChart = ({ initialExercise }) => {
                 top: 5,
                 right: 5,
                 left: 5,
-                bottom: 5,
+                bottom: 30, // Increased bottom margin to accommodate date labels
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
                 dataKey="xAxis" 
-                tick={{ fontSize: 10 }}
+                height={60} // Increased height to accommodate date labels
+                tick={<CustomXAxisTick />}
                 interval={0}
                 axisLine={false}
                 tickLine={false}
