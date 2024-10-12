@@ -55,7 +55,16 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const response = await axios.get(`/api/exercises/progress/${exerciseName}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
-      setExerciseData(response.data);
+      const formattedData = response.data.flatMap((workout, workoutIndex) => 
+        workout.sets.map((set, setIndex) => ({
+          ...set,
+          date: workout.date,
+          workoutIndex,
+          setIndex,
+          xAxis: `${workoutIndex + 1}.${setIndex + 1}`
+        }))
+      );
+      setExerciseData(formattedData);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching exercise progress:', err);
@@ -70,7 +79,6 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     }
   }, [selectedExercise, fetchExerciseProgress]);
 
-  // Convert exercises to options format for react-select
   const exerciseOptions = exercises.map(exercise => ({
     value: exercise.name,
     label: exercise.name
@@ -89,7 +97,8 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const data = payload[0].payload;
       return (
         <div className="custom-tooltip bg-white p-2 border rounded shadow">
-          <p className="font-bold">{new Date(label).toLocaleDateString()}</p>
+          <p className="font-bold">{new Date(data.date).toLocaleDateString()}</p>
+          <p>Set: {data.setIndex + 1}</p>
           <p>Weight: {data.weight} kgs</p>
           <p>Reps: {data.reps}</p>
           <p>Difficulty: {difficultyEmojis[data.difficulty]} {difficultyLabels[data.difficulty]}</p>
@@ -136,11 +145,9 @@ const WorkoutProgressChart = ({ initialExercise }) => {
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis 
-                dataKey="date" 
-                tickFormatter={(tickItem) => new Date(tickItem).toLocaleDateString()}
+                dataKey="xAxis" 
                 tick={{ fontSize: 10 }}
-                interval="preserveStartEnd"
-                minTickGap={10}
+                interval={0}
                 axisLine={false}
                 tickLine={false}
               />
@@ -167,7 +174,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
               {exerciseData.map((entry, index) => (
                 <ReferenceLine
                   key={index}
-                  x={entry.date}
+                  x={entry.xAxis}
                   stroke={difficultyColors[entry.difficulty]}
                   strokeWidth={2}
                   yAxisId="left"
