@@ -101,7 +101,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     return (
       <div className="overall-chart mb-8">
         <h3 className="text-center text-lg font-semibold mb-2">Overall Progress</h3>
-        <ExerciseChart data={chartData} xAxisKey="xAxis" xAxisLabel="Workout.Set" />
+        <ExerciseChart data={chartData} xAxisKey="xAxis" />
       </div>
     );
   };
@@ -117,7 +117,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
         <h3 className="text-center text-sm font-semibold mb-2">
           {new Date(workout.date).toLocaleDateString()}
         </h3>
-        <ExerciseChart data={data} xAxisKey="setNumber" xAxisLabel="Set" height={200} />
+        <ExerciseChart data={data} xAxisKey="setNumber" height={250} />
       </div>
     );
   };

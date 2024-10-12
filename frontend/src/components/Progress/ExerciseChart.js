@@ -40,30 +40,33 @@ const ExerciseChart = ({ data, xAxisKey, xAxisLabel, height = 300 }) => {
     <ResponsiveContainer width="100%" height={height}>
       <LineChart
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
           dataKey={xAxisKey} 
           tick={{ fontSize: 10 }}
           interval={0}
-          label={{ value: xAxisLabel, position: 'insideBottom', offset: -5 }}
+          // Only render the label if xAxisLabel is provided
+          label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : null}
         />
         <YAxis 
           yAxisId="left"
           tick={{ fontSize: 10 }}
           tickFormatter={(value) => `${value}kg`}
-          label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+          axisLine={false}
+          tickLine={false}
         />
         <YAxis 
           yAxisId="right"
           orientation="right"
           tick={{ fontSize: 10 }}
-          label={{ value: 'Reps', angle: 90, position: 'insideRight' }}
+          axisLine={false}
+          tickLine={false}
         />
         <Tooltip content={<CustomTooltip />} />
         <Legend />
-        <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
+        <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight (kg)" dot={{ r: 3 }} />
         <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
         {data.map((entry, index) => (
           <ReferenceLine
