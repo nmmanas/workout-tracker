@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import Select from 'react-select';
+import ExerciseChart from './ExerciseChart';
 
 const difficultyColors = {
   too_easy: "#4CAF50",
@@ -87,22 +87,6 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="custom-tooltip bg-white p-2 border rounded shadow">
-          <p className="font-bold">{new Date(data.date).toLocaleDateString()}</p>
-          <p>Set: {data.setIndex + 1}</p>
-          <p>Weight: {data.weight} kgs</p>
-          <p>Reps: {data.reps}</p>
-          <p>Difficulty: {difficultyEmojis[data.difficulty]} {difficultyLabels[data.difficulty]}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   const renderOverallChart = () => {
     const chartData = exerciseData.flatMap((workout, workoutIndex) => 
       workout.sets.map((set, setIndex) => ({
@@ -117,45 +101,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     return (
       <div className="overall-chart mb-8">
         <h3 className="text-center text-lg font-semibold mb-2">Overall Progress</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart
-            data={chartData}
-            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="xAxis" 
-              tick={{ fontSize: 10 }}
-              interval={0}
-              label={{ value: 'Workout.Set', position: 'insideBottom', offset: -5 }}
-            />
-            <YAxis 
-              yAxisId="left"
-              tick={{ fontSize: 10 }}
-              tickFormatter={(value) => `${value}kg`}
-              label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
-            />
-            <YAxis 
-              yAxisId="right"
-              orientation="right"
-              tick={{ fontSize: 10 }}
-              label={{ value: 'Reps', angle: 90, position: 'insideRight' }}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
-            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
-            {chartData.map((entry, index) => (
-              <ReferenceLine
-                key={index}
-                x={entry.xAxis}
-                stroke={difficultyColors[entry.difficulty]}
-                strokeWidth={2}
-                yAxisId="left"
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+        <ExerciseChart data={chartData} xAxisKey="xAxis" xAxisLabel="Workout.Set" />
       </div>
     );
   };
@@ -171,44 +117,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
         <h3 className="text-center text-sm font-semibold mb-2">
           {new Date(workout.date).toLocaleDateString()}
         </h3>
-        <ResponsiveContainer width="100%" height={200}>
-          <LineChart
-            data={data}
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="setNumber"
-              tick={{ fontSize: 10 }}
-              label={{ value: 'Set', position: 'insideBottom', offset: -5 }}
-            />
-            <YAxis 
-              yAxisId="left"
-              tick={{ fontSize: 10 }}
-              tickFormatter={(value) => `${value}kg`}
-              label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
-            />
-            <YAxis 
-              yAxisId="right"
-              orientation="right"
-              tick={{ fontSize: 10 }}
-              label={{ value: 'Reps', angle: 90, position: 'insideRight' }}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: 10, paddingTop: '10px' }} />
-            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
-            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
-            {data.map((entry, i) => (
-              <ReferenceLine
-                key={i}
-                x={entry.setNumber}
-                stroke={difficultyColors[entry.difficulty]}
-                strokeWidth={2}
-                yAxisId="left"
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+        <ExerciseChart data={data} xAxisKey="setNumber" xAxisLabel="Set" height={200} />
       </div>
     );
   };
