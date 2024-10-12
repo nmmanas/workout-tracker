@@ -29,6 +29,10 @@ const WorkoutProgressChart = ({ initialExercise }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    setSelectedExercise(initialExercise || "");
+  }, [initialExercise]);
+
   const fetchExercises = useCallback(async () => {
     try {
       const response = await axios.get('/api/exercises', {

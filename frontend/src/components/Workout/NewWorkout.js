@@ -380,6 +380,15 @@ const NewWorkout = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Update this useEffect to also update currentExercise
+  useEffect(() => {
+    if (selectedExercise) {
+      const selected = exercises.find(ex => ex._id === selectedExercise);
+      setCurrentExercise(selected);
+      // ... (rest of the useEffect)
+    }
+  }, [selectedExercise, exercises]);
+
   if (error) {
     return <div className="error-message">{error}</div>;
   }

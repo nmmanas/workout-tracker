@@ -1,9 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaBars } from 'react-icons/fa';
 import './ExerciseSidebar.css';
 import WorkoutProgressChart from '../Progress/WorkoutProgressChart';
 
 const ExerciseSidebar = ({ isOpen, toggleSidebar, currentExercise }) => {
+  const [chartKey, setChartKey] = useState(0);
+
+  useEffect(() => {
+    // Force re-render of WorkoutProgressChart when currentExercise changes
+    setChartKey(prevKey => prevKey + 1);
+  }, [currentExercise]);
+
   return (
     <>
       <div className={`sidebar ${isOpen ? 'sidebar-open' : ''}`}>
@@ -15,7 +22,10 @@ const ExerciseSidebar = ({ isOpen, toggleSidebar, currentExercise }) => {
             </div>
             <div className="exercise-progress">
               <h4>Exercise Progress</h4>
-              <WorkoutProgressChart initialExercise={currentExercise.name} />
+              <WorkoutProgressChart 
+                key={chartKey} 
+                initialExercise={currentExercise.name} 
+              />
             </div>
           </>
         ) : (
