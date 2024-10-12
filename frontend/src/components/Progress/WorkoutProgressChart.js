@@ -88,7 +88,8 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const data = payload[0].payload;
       return (
         <div className="custom-tooltip bg-white p-2 border rounded shadow">
-          <p className="font-bold">Set {label}</p>
+          <p className="font-bold">{new Date(data.date).toLocaleDateString()}</p>
+          <p>Set: {data.setIndex + 1}</p>
           <p>Weight: {data.weight} kgs</p>
           <p>Reps: {data.reps}</p>
           <p>Difficulty: {difficultyEmojis[data.difficulty]} {difficultyLabels[data.difficulty]}</p>
@@ -96,6 +97,63 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       );
     }
     return null;
+  };
+
+  const renderOverallChart = () => {
+    const chartData = exerciseData.flatMap((workout, workoutIndex) => 
+      workout.sets.map((set, setIndex) => ({
+        ...set,
+        date: workout.date,
+        workoutIndex,
+        setIndex,
+        xAxis: `${workoutIndex + 1}.${setIndex + 1}`
+      }))
+    );
+
+    return (
+      <div className="overall-chart mb-8">
+        <h3 className="text-center text-lg font-semibold mb-2">Overall Progress</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart
+            data={chartData}
+            margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="xAxis" 
+              tick={{ fontSize: 10 }}
+              interval={0}
+              label={{ value: 'Workout.Set', position: 'insideBottom', offset: -5 }}
+            />
+            <YAxis 
+              yAxisId="left"
+              tick={{ fontSize: 10 }}
+              tickFormatter={(value) => `${value}kg`}
+              label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+            />
+            <YAxis 
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 10 }}
+              label={{ value: 'Reps', angle: 90, position: 'insideRight' }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
+            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
+            {chartData.map((entry, index) => (
+              <ReferenceLine
+                key={index}
+                x={entry.xAxis}
+                stroke={difficultyColors[entry.difficulty]}
+                strokeWidth={2}
+                yAxisId="left"
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
   };
 
   const renderWorkoutChart = (workout, index) => {
@@ -175,9 +233,13 @@ const WorkoutProgressChart = ({ initialExercise }) => {
           <FaSpinner className="spinner text-4xl animate-spin" />
         </div>
       ) : (
-        <div className="charts-container">
-          {exerciseData.map((workout, index) => renderWorkoutChart(workout, index))}
-        </div>
+        <>
+          {renderOverallChart()}
+          <h3 className="text-center text-lg font-semibold mb-4">Individual Workout Progress</h3>
+          <div className="charts-container">
+            {exerciseData.map((workout, index) => renderWorkoutChart(workout, index))}
+          </div>
+        </>
       )}
       <div className="difficulty-legend mt-2 flex flex-wrap justify-center gap-2">
         {Object.entries(difficultyColors).map(([difficulty, color]) => (
