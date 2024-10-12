@@ -75,8 +75,6 @@ router.get('/last-data/:exerciseName', auth, async (req, res) => {
   }
 });
 
-// Add this new route at the end of the file
-
 // GET /api/exercises/progress/:exerciseName
 router.get('/progress/:exerciseName', auth, async (req, res) => {
   try {
@@ -87,23 +85,29 @@ router.get('/progress/:exerciseName', auth, async (req, res) => {
       user: userId,
       'exercises.name': exerciseName,
       isDraft: false
-    }).sort({ date: 1 });
+    })
+    .sort({ date: -1 }) // Sort by date in descending order
+    .limit(3); // Limit to the last 3 workouts
 
-    const progressData = workouts.map(workout => {
-      const exercise = workout.exercises.find(e => e.name === exerciseName);
-      if (exercise && exercise.sets.length > 0) {
-        const lastSet = exercise.sets[exercise.sets.length - 1];
-        return {
-          date: workout.date.toISOString(), // Ensure date is in ISO format
-          weight: lastSet.weight || null,
-          reps: lastSet.reps || null,
-          difficulty: lastSet.difficulty || 'neutral'
-        };
-      }
-      return null;
-    }).filter(data => data !== null);
+    const progressData = workouts
+      .map(workout => {
+        const exercise = workout.exercises.find(e => e.name === exerciseName);
+        if (exercise && exercise.sets.length > 0) {
+          return {
+            date: workout.date.toISOString(),
+            sets: exercise.sets.map(set => ({
+              weight: set.weight || null,
+              reps: set.reps || null,
+              difficulty: set.difficulty || 'neutral'
+            }))
+          };
+        }
+        return null;
+      })
+      .filter(data => data !== null)
+      .reverse(); // Reverse the array to maintain chronological order
 
-    console.log('Sending progress data:', progressData); // Add this line
+    console.log('Sending progress data:', progressData);
     res.json(progressData);
   } catch (error) {
     console.error('Error fetching exercise progress:', error);
