@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 const difficultyColors = {
@@ -36,6 +36,34 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ExerciseChart = ({ data, xAxisKey, xAxisLabel, height = 300 }) => {
+  const [chartWidth, setChartWidth] = useState(0);
+
+  useEffect(() => {
+    const updateChartWidth = () => {
+      const chart = document.querySelector('.recharts-wrapper');
+      if (chart) {
+        setChartWidth(chart.clientWidth);
+      }
+    };
+
+    updateChartWidth();
+    window.addEventListener('resize', updateChartWidth);
+
+    return () => window.removeEventListener('resize', updateChartWidth);
+  }, []);
+
+  const formatXAxisTick = (value) => {
+    if (typeof value === 'string' && value.includes('.')) {
+      if (chartWidth < 500) {
+        // For smaller screens, only show the first number
+        return value.split('.')[0];
+      }
+      return value;
+    }
+    // For other types of values (e.g., numbers), return as is
+    return value;
+  };
+
   return (
     <ResponsiveContainer width="100%" height={height}>
       <LineChart
@@ -47,7 +75,7 @@ const ExerciseChart = ({ data, xAxisKey, xAxisLabel, height = 300 }) => {
           dataKey={xAxisKey} 
           tick={{ fontSize: 10 }}
           interval={0}
-          // Only render the label if xAxisLabel is provided
+          tickFormatter={formatXAxisTick}
           label={xAxisLabel ? { value: xAxisLabel, position: 'insideBottom', offset: -10 } : null}
         />
         <YAxis 
