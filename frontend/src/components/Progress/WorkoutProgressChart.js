@@ -55,16 +55,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const response = await axios.get(`/api/exercises/progress/${exerciseName}`, {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
-      const formattedData = response.data.flatMap((workout, workoutIndex) => 
-        workout.sets.map((set, setIndex) => ({
-          ...set,
-          date: new Date(workout.date).toLocaleDateString(),
-          workoutIndex,
-          setIndex,
-          xAxis: `${workoutIndex + 1}.${setIndex + 1}`
-        }))
-      );
-      setExerciseData(formattedData);
+      setExerciseData(response.data);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching exercise progress:', err);
@@ -97,8 +88,7 @@ const WorkoutProgressChart = ({ initialExercise }) => {
       const data = payload[0].payload;
       return (
         <div className="custom-tooltip bg-white p-2 border rounded shadow">
-          <p className="font-bold">{new Date(data.date).toLocaleDateString()}</p>
-          <p>Set: {data.setIndex + 1}</p>
+          <p className="font-bold">Set {label}</p>
           <p>Weight: {data.weight} kgs</p>
           <p>Reps: {data.reps}</p>
           <p>Difficulty: {difficultyEmojis[data.difficulty]} {difficultyLabels[data.difficulty]}</p>
@@ -108,20 +98,56 @@ const WorkoutProgressChart = ({ initialExercise }) => {
     return null;
   };
 
-  const CustomXAxisTick = ({ x, y, payload }) => {
-    const parts = payload.value.split('.');
-    const isFirstSet = parts[1] === '1';
+  const renderWorkoutChart = (workout, index) => {
+    const data = workout.sets.map((set, setIndex) => ({
+      ...set,
+      setNumber: setIndex + 1
+    }));
+
     return (
-      <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666" fontSize={10}>
-          {payload.value}
-        </text>
-        {isFirstSet && (
-          <text x={0} y={0} dy={30} textAnchor="middle" fill="#666" fontSize={10}>
-            {exerciseData.find(d => d.xAxis === payload.value)?.date}
-          </text>
-        )}
-      </g>
+      <div key={index} className="workout-chart mb-4">
+        <h3 className="text-center text-sm font-semibold mb-2">
+          {new Date(workout.date).toLocaleDateString()}
+        </h3>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart
+            data={data}
+            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="setNumber"
+              tick={{ fontSize: 10 }}
+              label={{ value: 'Set', position: 'insideBottom', offset: -5 }}
+            />
+            <YAxis 
+              yAxisId="left"
+              tick={{ fontSize: 10 }}
+              tickFormatter={(value) => `${value}kg`}
+              label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+            />
+            <YAxis 
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 10 }}
+              label={{ value: 'Reps', angle: 90, position: 'insideRight' }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend wrapperStyle={{ fontSize: 10, paddingTop: '10px' }} />
+            <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
+            <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
+            {data.map((entry, i) => (
+              <ReferenceLine
+                key={i}
+                x={entry.setNumber}
+                stroke={difficultyColors[entry.difficulty]}
+                strokeWidth={2}
+                yAxisId="left"
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     );
   };
 
@@ -149,58 +175,8 @@ const WorkoutProgressChart = ({ initialExercise }) => {
           <FaSpinner className="spinner text-4xl animate-spin" />
         </div>
       ) : (
-        <div className="chart-container w-full" style={{ height: '400px', maxWidth: '100%', overflow: 'visible' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={exerciseData}
-              margin={{
-                top: 5,
-                right: 5,
-                left: 5,
-                bottom: 30, // Increased bottom margin to accommodate date labels
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="xAxis" 
-                height={60} // Increased height to accommodate date labels
-                tick={<CustomXAxisTick />}
-                interval={0}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis 
-                yAxisId="left" 
-                tick={{ fontSize: 10, fill: '#8884d8' }}
-                tickFormatter={(value) => `${value}kg`}
-                width={30}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis 
-                yAxisId="right" 
-                orientation="right" 
-                tick={{ fontSize: 10, fill: '#82ca9d' }}
-                width={20}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend wrapperStyle={{ fontSize: 10, paddingTop: '10px' }} />
-              <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Weight" dot={{ r: 3 }} />
-              <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Reps" dot={{ r: 3 }} />
-              {exerciseData.map((entry, index) => (
-                <ReferenceLine
-                  key={index}
-                  x={entry.xAxis}
-                  stroke={difficultyColors[entry.difficulty]}
-                  strokeWidth={2}
-                  yAxisId="left"
-                  ifOverflow="extendDomain"
-                />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="charts-container">
+          {exerciseData.map((workout, index) => renderWorkoutChart(workout, index))}
         </div>
       )}
       <div className="difficulty-legend mt-2 flex flex-wrap justify-center gap-2">
